@@ -5,7 +5,8 @@ import org.restoranproje.model.*;
 import org.restoranproje.db.*;
 public class Main {
     public static void main(String[] args) {
-       // DatabaseManager.connect();
+
+       // DatabaseManager.setupDatabase(); kurarken bir kez çalıştırın
         OrderManager manager = new OrderManager();
 
         Waiter waiter = new Waiter("İshak");
@@ -16,7 +17,7 @@ public class Main {
         manager.addObserver(chef);
         manager.addObserver(admin);
 
-        waiter.takeOrder(manager, 1,"1 adet pizza");
+       waiter.takeOrder(manager, 1,"1 adet pizza");
 
         admin.viewOrderByStatus(manager,OrderStatus.NEW); // manager new statusundeki ürünlere bakıyor
 
@@ -30,5 +31,14 @@ public class Main {
         System.out.println("\nManager View"); // manager tüm ürünlere bakıyor
         admin.viewAllOrders(manager);
 
+
+        waiter.takeOrder(manager, 2,"cay");
+        manager.updateOrderStatus(2, OrderStatus.DELIVERED);
+        /* NOT: intelliJ database kısmında restoran.db'ye basın, jump to query console
+        ve aşağıdakileri yazıp execute edince tabloların içi sıfırlanacak
+        daha temiz çalışmak için testlerden sonra yapılmalı
+            DELETE FROM completed_orders
+            DELETE FROM order_history
+         */
     }
 }

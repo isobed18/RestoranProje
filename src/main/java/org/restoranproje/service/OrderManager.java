@@ -1,6 +1,7 @@
 package org.restoranproje.service;
 
 
+import org.restoranproje.db.OrderDAO;
 import org.restoranproje.model.Observer;
 import org.restoranproje.model.Order;
 import org.restoranproje.model.OrderStatus;
@@ -28,22 +29,38 @@ public class OrderManager {
         }
     }
 
-    public void addOrder(Order order) { // order ekleme
-        orders.add(order);
-        notifyObservers(order);
-    }
-
-    public void updateOrderStatus(int orderId, OrderStatus newStatus) { // order durumu değiştirme
-        for (Order order : orders) {
-            if (order.getId() == orderId) {
-                order.setStatus(newStatus);
-                notifyObservers(order);  // yeni durumu observerlara bildirme
-                return;
+    private Order findOrderById(int id) { // verilen id ile orders listesinde orderı bulacak
+        for (Order o : orders) {
+            if (o.getId() == id) {
+                return o;
             }
         }
-        System.out.println("Order ID not found: " + orderId);  //order id yoksa
+        return null;
     }
 
+    public void addOrder(Order order) { // order ekleme
+        orders.add(order); // ram
+
+        OrderDAO.logOrderHistory(order); // db
+        notifyObservers(order); // notify
+    }
+
+    public void updateOrderStatus(int orderId, OrderStatus newStatus) {
+        Order order = findOrderById(orderId);
+        if (order != null) {
+            order.setStatus(newStatus); // Sipariş nesnesini güncelle
+
+            OrderDAO.logOrderHistory(order); // herhangi bir değişiklikte orderhistorye logla
+
+            if (newStatus == OrderStatus.DELIVERED) {
+                OrderDAO.saveCompletedOrder(order); // delivered olanları completed ordersa ekle
+            }
+
+            notifyObservers(order); // bildirim
+        } else {
+            System.out.println("Order not found");
+        }
+    }
     public List<Order> getAllOrders() {
         return orders;
     }
