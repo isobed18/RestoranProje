@@ -1,19 +1,32 @@
 package org.restoranproje.service;
 
-
 import org.restoranproje.db.OrderDAO;
 import org.restoranproje.model.*;
 import org.restoranproje.model.Observer;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.restoranproje.service.StockManager;
 import java.util.*;
 
 public class OrderManager {
     private List<Observer> observers = new ArrayList<>();
     private List<Order> orders = new ArrayList<>();
     private StockManager smanager = new StockManager();
+
+    public OrderManager() {
+        // Uygulama başladığında veya OrderManager oluşturulduğunda aktif siparişleri yükle
+        loadActiveOrders();
+    }
+
+    private void loadActiveOrders() {
+        List<Order> activeOrdersFromDB = OrderDAO.getActiveOrders();
+        if (activeOrdersFromDB != null) {
+            this.orders.addAll(activeOrdersFromDB);
+            System.out.println("Veritabanından " + activeOrdersFromDB.size() + " aktif sipariş yüklendi.");
+        } else {
+            System.out.println("Veritabanından aktif sipariş yüklenemedi veya hiç aktif sipariş yok.");
+        }
+    }
 
     public void addObserver(Observer observer) {
         observers.add(observer);
@@ -28,14 +41,13 @@ public class OrderManager {
         return smanager;
     }
 
-    public void notifyObservers(Order order) { // order bildirimi
+    public void notifyObservers(Order order) {
         for (Observer obs : observers) {
-            obs.update(order); // order geldiğinde (burada herhangi bir değişiklik olunca order geliyor)
-                                // observerlara bildirim düşüyor
+            obs.update(order);
         }
     }
 
-    public Order findOrderById(int id) { // verilen id ile orders listesinde orderı bulacak
+    public Order findOrderById(int id) {
         for (Order o : orders) {
             if (o.getId() == id) {
                 return o;
@@ -46,37 +58,33 @@ public class OrderManager {
 
     public void addOrder(Order order) {
         if (smanager.canFulfillOrder(order)) {
-            smanager.fulfillOrder(order); // stokları azalt
-            orders.add(order); // belleğe ekle
-            OrderDAO.logOrderHistory(order); // veritabanına logla
-            notifyObservers(order); // observer'lara bildir
+            smanager.fulfillOrder(order);
+            orders.add(order);
+            OrderDAO.logOrderHistory(order);
+            notifyObservers(order);
         } else {
             System.out.println("Stok yetersiz! Sipariş alınamadı.");
-
         }
     }
-
 
     public void updateOrderStatus(int orderId, OrderStatus newStatus) {
         Order order = findOrderById(orderId);
         if (order != null) {
-            order.setStatus(newStatus); // Sipariş nesnesini güncelle
-
-            OrderDAO.logOrderHistory(order); // herhangi bir değişiklikte orderhistorye logla
-
+            order.setStatus(newStatus);
+            OrderDAO.logOrderHistory(order);
             if (newStatus == OrderStatus.DELIVERED) {
-                OrderDAO.saveCompletedOrder(order); // delivered olanları completed ordersa ekle
+                OrderDAO.saveCompletedOrder(order);
             }
             if (newStatus == OrderStatus.CANCELLEDBP) {
                 smanager.restoreStockForOrder(order);
             }
-
-
-            notifyObservers(order); // bildirim
+            notifyObservers(order);
+            System.out.println("Durum güncellendi: " + order); // Durum güncellendi mesajını buraya taşıdım
         } else {
             System.out.println("Order not found");
         }
     }
+
     public List<Order> getAllOrders() {
         return orders;
     }

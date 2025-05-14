@@ -34,12 +34,14 @@ public class OrderDAO {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT * FROM order_history WHERE status != 'DELIVERED' AND status != 'CANCELLEDBP' ORDER BY order_id";
 
-        // Sipariş kalemlerini almak için kullanılacak SQL sorgusu (tablo ve sütun adları varsayımsaldır)
-        String itemsSql = "SELECT oi.order_id, oi.menu_item_id, mi.name AS menu_name, mi.description AS menu_desc, mi.type, mi.price AS menu_price " +
-                "FROM order_items oi JOIN menu_items mi ON oi.menu_item_id = mi.id WHERE oi.order_id = ?";
+        // Sipariş kalemlerini almak için kullanılacak SQL sorgusu
+        String itemsSql = "SELECT oi.menu_item_id FROM order_items oi WHERE oi.order_id = ?";
 
-        // Menü kalemlerine ait stok kalemlerini almak için kullanılacak SQL sorgusu (tablo ve sütun adları varsayımsaldır)
-        String stockItemsSql = "SELECT mis.menu_item_id, si.name AS stock_name, si.description AS stock_desc, si.count, si.price AS stock_price " +
+        // Menü kalemesi detaylarını almak için SQL sorgusu
+        String menuItemSql = "SELECT name, description, type, price FROM menu_items WHERE id = ?";
+
+        // Menü kalemesine ait stok kalemlerini almak için SQL sorgusu
+        String stockItemsSql = "SELECT mis.stock_item_id, si.name AS stock_name, si.description AS stock_desc, si.count, si.price AS stock_price " +
                 "FROM menu_item_stock mis JOIN stock_items si ON mis.stock_item_id = si.id WHERE mis.menu_item_id = ?";
 
         Map<Integer, Order> orderMap = new HashMap<>();
@@ -47,6 +49,7 @@ public class OrderDAO {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:./src/main/resources/database/restoran.db");
              Statement stmt = conn.createStatement();
              PreparedStatement itemsStmt = conn.prepareStatement(itemsSql);
+             PreparedStatement menuItemStmt = conn.prepareStatement(menuItemSql);
              PreparedStatement stockItemsStmt = conn.prepareStatement(stockItemsSql);
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -65,31 +68,38 @@ public class OrderDAO {
                     order.setStatus(status);
                 }
 
-                // Sipariş kalemlerini getir ve Order nesnesine ekle
+                // Sipariş kalemlerini getir
                 itemsStmt.setInt(1, orderId);
                 ResultSet itemsRs = itemsStmt.executeQuery();
                 while (itemsRs.next()) {
                     int menuItemId = itemsRs.getInt("menu_item_id");
-                    String menuName = itemsRs.getString("menu_name");
-                    String menuDescription = itemsRs.getString("menu_desc");
-                    String menuTypeStr = itemsRs.getString("type");
-                    int menuPrice = itemsRs.getInt("menu_price");
-                    MenuItemType menuItemType = MenuItemType.valueOf(menuTypeStr);
-                    ArrayList<StockItem> stockItems = new ArrayList<>();
 
-                    // Menü kalemine ait stok kalemlerini getir
-                    stockItemsStmt.setInt(1, menuItemId);
-                    ResultSet stockItemsRs = stockItemsStmt.executeQuery();
-                    while (stockItemsRs.next()) {
-                        String stockName = stockItemsRs.getString("stock_name");
-                        String stockDescription = stockItemsRs.getString("stock_desc");
-                        int stockCount = stockItemsRs.getInt("count");
-                        int stockPrice = stockItemsRs.getInt("stock_price");
-                        stockItems.add(new StockItem(stockName, stockDescription, stockCount, stockPrice));
+                    // Menü kalemi detaylarını getir
+                    menuItemStmt.setInt(1, menuItemId);
+                    ResultSet menuItemRs = menuItemStmt.executeQuery();
+                    if (menuItemRs.next()) {
+                        String menuName = menuItemRs.getString("name");
+                        String menuDescription = menuItemRs.getString("description");
+                        String menuTypeStr = menuItemRs.getString("type");
+                        int menuPrice = menuItemRs.getInt("price");
+                        MenuItemType menuItemType = MenuItemType.valueOf(menuTypeStr);
+                        ArrayList<StockItem> stockItems = new ArrayList<>();
+
+                        // Menü kalemine ait stok kalemlerini getir
+                        stockItemsStmt.setInt(1, menuItemId);
+                        ResultSet stockItemsRs = stockItemsStmt.executeQuery();
+                        while (stockItemsRs.next()) {
+                            String stockName = stockItemsRs.getString("stock_name");
+                            String stockDescription = stockItemsRs.getString("stock_desc");
+                            int stockCount = stockItemsRs.getInt("count");
+                            int stockPrice = stockItemsRs.getInt("stock_price");
+                            stockItems.add(new StockItem(stockName, stockDescription, stockCount, stockPrice));
+                        }
+                        stockItemsRs.close();
+
+                        order.getItems().add(new MenuItem(menuName, menuDescription, menuItemType, menuPrice, stockItems));
                     }
-                    stockItemsRs.close();
-
-                    order.getItems().add(new MenuItem(menuName, menuDescription, menuItemType, menuPrice, stockItems));
+                    menuItemRs.close();
                 }
                 itemsRs.close();
             }
