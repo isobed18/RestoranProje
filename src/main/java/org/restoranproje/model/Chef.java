@@ -1,10 +1,12 @@
 package org.restoranproje.model;
 
+import org.restoranproje.db.UserDAO;
 import org.restoranproje.service.OrderManager;
 
 public class Chef extends User {
-    public Chef(String name) {
-        super(name);
+    public Chef(String name,String password) {
+        super(name,UserType.CHEF, password);
+        UserDAO.saveUser(this);
     }
 
     @Override

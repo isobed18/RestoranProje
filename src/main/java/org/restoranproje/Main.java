@@ -6,12 +6,13 @@ import org.restoranproje.db.*;
 public class Main {
     public static void main(String[] args) {
 
-       // DatabaseManager.setupDatabase(); kurarken bir kez çalıştırın
+
+        DatabaseManager.setupDatabase(); //kurarken bir kez çalıştırın
         OrderManager manager = new OrderManager();
 
-        Waiter waiter = new Waiter("İshak");
-        Chef chef = new Chef("Coşkun");
-        Manager admin = new Manager("Yusuf");
+        Waiter waiter = new Waiter("İshak","123");
+        Chef chef = new Chef("Coşkun","1234");
+        Manager admin = new Manager("Yusuf","1234");
 
         manager.addObserver(waiter);
         manager.addObserver(chef);

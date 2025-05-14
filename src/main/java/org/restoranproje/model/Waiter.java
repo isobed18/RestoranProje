@@ -1,10 +1,11 @@
 package org.restoranproje.model;
 
 import org.restoranproje.service.OrderManager;
-
+import org.restoranproje.db.UserDAO;
 public class Waiter extends User {
-    public Waiter(String name) {
-        super(name);
+    public Waiter(String name, String password) {
+        super(name,UserType.WAITER, password);
+        UserDAO.saveUser(this);
     }
 
     @Override
