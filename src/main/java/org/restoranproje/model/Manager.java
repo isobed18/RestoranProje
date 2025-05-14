@@ -17,7 +17,6 @@ public class Manager extends User {
             System.out.println(o);
         }
     }
-
     public void viewOrderByStatus(OrderManager manager, OrderStatus status) {
         for (Order o : manager.getOrdersByStatus(status)) {
             System.out.println(o);
