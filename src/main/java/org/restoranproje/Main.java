@@ -3,32 +3,76 @@ package org.restoranproje;
 import org.restoranproje.service.*;
 import org.restoranproje.model.*;
 import org.restoranproje.db.*;
+
+import java.util.ArrayList;
+
 public class Main {
     public static void main(String[] args) {
-       // DatabaseManager.connect();
-        OrderManager manager = new OrderManager();
 
-        Waiter waiter = new Waiter("İshak");
-        Chef chef = new Chef("Coşkun");
-        Manager admin = new Manager("Yusuf");
+        DatabaseManager.setupDatabase(); // Kurarken bir kez çalıştırın
 
-        manager.addObserver(waiter);
-        manager.addObserver(chef);
-        manager.addObserver(admin);
+        // Yöneticiler ve servisler
+        OrderManager orderManager = new OrderManager();
+        StockManager stockManager = orderManager.getStockManager();
 
-        waiter.takeOrder(manager, 1,"1 adet pizza");
+        Waiter waiter = new Waiter("İshak", "123");
+        Chef chef = new Chef("Coşkun", "1234");
+        Manager admin = new Manager("Yusuf", "1234");
 
-        admin.viewOrderByStatus(manager,OrderStatus.NEW); // manager new statusundeki ürünlere bakıyor
+        // Observer ekleniyor
+        orderManager.addObserver(waiter);
+        orderManager.addObserver(chef);
+        orderManager.addObserver(admin);
 
-        chef.prepareOrder(manager, 1);
-        admin.viewOrderByStatus(manager,OrderStatus.PREPARING); // manager new statusundeki ürünlere bakıyor
+        // Başlangıç stoğu
+        StockItem etStok = new StockItem("et", "dana eti kg, kg başı fiyat", 100, 650);
+        StockItem otStok = new StockItem("ot","ot stok", 100, 10);
+        stockManager.addStockItem(etStok);  // StokManager'a ürün ekleniyor
+        stockManager.addStockItem(otStok);
+        System.out.println("Stoklar:");
+        stockManager.printAllStock();
 
-        chef.completeOrder(manager, 1);
+        // Siparişe ait stok gereksinimi
 
-        waiter.deliverOrder(manager, 1);
+        StockItem etDonerdekiet = new StockItem("et","etdonerdeki et", 1, 650);
+        StockItem etDonerdekiot = new StockItem("ot","etdonerdeki", 10, 10);
+        ArrayList<StockItem> etdoner_items = new ArrayList<>();
+        etdoner_items.add(etDonerdekiet);
+        etdoner_items.add(etDonerdekiot);
+        MenuItem etdoner = new MenuItem("etdoner","et doner",MenuItemType.DISH,
+                1000,etdoner_items);
 
-        System.out.println("\nManager View"); // manager tüm ürünlere bakıyor
-        admin.viewAllOrders(manager);
+        ArrayList<MenuItem> orderItems = new ArrayList<>();
+        orderItems.add(etdoner);
+        Order order1 = new Order(1,"ornek detay", orderItems);
+        orderManager.addOrder(order1);
+        System.out.println("stoklar:");
+        stockManager.printAllStock();
+
+        System.out.println("tüm siparişler:");
+        admin.viewAllOrders(orderManager);
+
+        otStok.setCount(90);
+        stockManager.removeStockItem(otStok);
+        // İkinci sipariş testi
+        stockManager.printAllStock();
+        order1.setId(2);
+        waiter.takeOrder(orderManager, order1); // stok yetersiz olmalı şuan
+        StockItem otStok2 = new StockItem("ot","ot stok", 100, 10);
+        stockManager.printAllStock();
+
+        stockManager.addStockItem(otStok2);
+        stockManager.printAllStock();
+        waiter.takeOrder(orderManager, order1); //şimdi alınmalı
+        stockManager.printAllStock();
+
+
+        // stok restore
+        System.out.println("Sipariş iptal testi :");
+
+        orderManager.updateOrderStatus(2, OrderStatus.CANCELLEDBP);
+        stockManager.printAllStock();
+
 
     }
 }
