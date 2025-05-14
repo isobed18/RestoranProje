@@ -2,24 +2,30 @@ package org.restoranproje.service;
 
 
 import org.restoranproje.db.OrderDAO;
+import org.restoranproje.model.*;
 import org.restoranproje.model.Observer;
-import org.restoranproje.model.Order;
-import org.restoranproje.model.OrderStatus;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import org.restoranproje.service.StockManager;
 import java.util.*;
 
 public class OrderManager {
     private List<Observer> observers = new ArrayList<>();
     private List<Order> orders = new ArrayList<>();
+    private StockManager smanager = new StockManager();
 
     public void addObserver(Observer observer) {
         observers.add(observer);
+        smanager.addObserver(observer);
     }
 
     public void removeObserver(Observer observer) {
         observers.remove(observer);
+        smanager.removeObserver(observer);
+    }
+    public StockManager getStockManager() {
+        return smanager;
     }
 
     public void notifyObservers(Order order) { // order bildirimi
@@ -29,7 +35,7 @@ public class OrderManager {
         }
     }
 
-    private Order findOrderById(int id) { // verilen id ile orders listesinde orderı bulacak
+    public Order findOrderById(int id) { // verilen id ile orders listesinde orderı bulacak
         for (Order o : orders) {
             if (o.getId() == id) {
                 return o;
@@ -38,12 +44,18 @@ public class OrderManager {
         return null;
     }
 
-    public void addOrder(Order order) { // order ekleme
-        orders.add(order); // ram
+    public void addOrder(Order order) {
+        if (smanager.canFulfillOrder(order)) {
+            smanager.fulfillOrder(order); // stokları azalt
+            orders.add(order); // belleğe ekle
+            OrderDAO.logOrderHistory(order); // veritabanına logla
+            notifyObservers(order); // observer'lara bildir
+        } else {
+            System.out.println("Stok yetersiz! Sipariş alınamadı.");
 
-        OrderDAO.logOrderHistory(order); // db
-        notifyObservers(order); // notify
+        }
     }
+
 
     public void updateOrderStatus(int orderId, OrderStatus newStatus) {
         Order order = findOrderById(orderId);
@@ -55,6 +67,10 @@ public class OrderManager {
             if (newStatus == OrderStatus.DELIVERED) {
                 OrderDAO.saveCompletedOrder(order); // delivered olanları completed ordersa ekle
             }
+            if (newStatus == OrderStatus.CANCELLEDBP) {
+                smanager.restoreStockForOrder(order);
+            }
+
 
             notifyObservers(order); // bildirim
         } else {
