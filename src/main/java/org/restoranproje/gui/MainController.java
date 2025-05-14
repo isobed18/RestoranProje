@@ -1,17 +1,16 @@
 package org.restoranproje.gui;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import javafx.beans.property.SimpleStringProperty;
+
+import org.restoranproje.model.*;
+import org.restoranproje.service.OrderManager;
 
 import java.sql.*;
 
@@ -62,14 +61,34 @@ public class MainController {
     @FXML
     private Button waiter_button;
 
-    // Initialize method to bind data and load
+    // Sipariş yönetimi ve kullanıcı
+    private static OrderManager orderManager;
+    private static Manager manager;
+
+    // Main'den çağrılması için static setter
+    public static void setServices(OrderManager om, Manager m) {
+        orderManager = om;
+        manager = m;
+    }
+
+    // Seçili Order ID
+    private int selectedOrderId = -1;
+
     @FXML
     public void initialize() {
-        // Artık SimpleStringProperty döndüren metodları kullanıyoruz
         colID.setCellValueFactory(data -> data.getValue().orderIdProperty());
         colDetail.setCellValueFactory(data -> data.getValue().detailsProperty());
         colStatus.setCellValueFactory(data -> data.getValue().statusProperty());
         colTime.setCellValueFactory(data -> data.getValue().timestampProperty());
+
+        // Tablo tıklanınca TextField'e status yaz
+        order_history.setOnMouseClicked((MouseEvent event) -> {
+            OrderHistory selected = order_history.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                selectedOrderId = Integer.parseInt(selected.orderIdProperty().getValue());
+                order_history_textbox.setText(selected.statusProperty().get());
+            }
+        });
 
         loadDataFromDatabase();
     }
@@ -102,6 +121,19 @@ public class MainController {
 
     @FXML
     void save_change_order(MouseEvent event) {
-        // Implement your logic here
+        if (selectedOrderId == -1) {
+            System.out.println("Lütfen bir sipariş seçin.");
+            return;
+        }
+
+        String newStatusStr = order_history_textbox.getText().toUpperCase().trim();
+        try {
+            OrderStatus newStatus = OrderStatus.valueOf(newStatusStr);
+            manager.changeOrderStatus(orderManager, selectedOrderId, newStatus);
+            System.out.println("Durum güncellendi.");
+            loadDataFromDatabase(); // Tabloyu yenile
+        } catch (IllegalArgumentException e) {
+            System.out.println("Geçersiz durum girdiniz.");
+        }
     }
 }
