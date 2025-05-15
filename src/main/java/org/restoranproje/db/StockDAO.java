@@ -10,7 +10,7 @@ public class StockDAO {
 
     public static List<StockItem> getAllStockItems() {
         List<StockItem> list = new ArrayList<>();
-        String sql = "SELECT name, description, count, price FROM stock_items";
+        String sql = "SELECT id, name, description, count, price FROM stock_items";
 
         try (Connection conn = DatabaseManager.connect();
              Statement stmt = conn.createStatement();
@@ -34,7 +34,7 @@ public class StockDAO {
     }
 
     public static void updateStockItem(StockItem item) {
-        String sql = "UPDATE stock_items SET description=?, count=?, price=? WHERE name=?";
+        String sql = "UPDATE stock_items SET description=?, count=?, price=? WHERE id=?";
 
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -42,7 +42,7 @@ public class StockDAO {
             pstmt.setString(1, item.getDescription());
             pstmt.setDouble(2, item.getCount());
             pstmt.setInt(3, item.getPrice());
-            pstmt.setString(4, item.getName());
+            pstmt.setInt(4, item.getId());
 
             pstmt.executeUpdate();
 
