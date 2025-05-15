@@ -98,7 +98,7 @@ public class OrderDAO {
                         }
                         stockItemsRs.close();
 
-                        order.getItems().add(new MenuItem(menuName, menuDescription, menuItemType, menuPrice, stockItems));
+                        order.getItems().add(new MenuItem(menuName, menuDescription, menuItemType, menuPrice));
                     }
                     menuItemRs.close();
                 }
