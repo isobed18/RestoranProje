@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuItem {
+
     private String name;
     private String description;
+    private int price;
     private MenuItemType type;
+
     private ArrayList<StockItem> items;
-    
     private List<RecipeIngredient> recipe = new ArrayList<>();
     private FoodStatus foodStatus = FoodStatus.AVAILABLE; // varsayılan açık
-
-    int price;
 
     public MenuItem(String name, String description, MenuItemType type, int price, ArrayList<StockItem> items) {
         this.name = name;
@@ -20,8 +20,16 @@ public class MenuItem {
         this.type = type;
         this.price = price;
         this.items = items;
-
     }
+
+    public MenuItem(String name, String description, MenuItemType type, int price) {
+    this.name = name;
+    this.description = description;
+    this.type = type;
+    this.price = price;
+    this.items = new ArrayList<>(); 
+}
+
 
     public String getName() {
         return name;
@@ -29,6 +37,14 @@ public class MenuItem {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public String getDescription() {
@@ -49,6 +65,10 @@ public class MenuItem {
 
     public ArrayList<StockItem> getItems() {
         return items;
+    }
+
+    public void setItems(ArrayList<StockItem> items) {
+        this.items = items;
     }
 
     public List<RecipeIngredient> getRecipe() {
