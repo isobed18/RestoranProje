@@ -25,8 +25,8 @@ public class Main {
         orderManager.addObserver(admin);
 
         // Başlangıç stoğu
-        StockItem etStok = new StockItem("et", "dana eti kg, kg başı fiyat", 100, 650);
-        StockItem otStok = new StockItem("ot","ot stok", 100, 10);
+        StockItem etStok = new StockItem(1,"et", "dana eti kg, kg başı fiyat", 100, 650);
+        StockItem otStok = new StockItem(2,"ot","ot stok", 100, 10);
         stockManager.addStockItem(etStok);  // StokManager'a ürün ekleniyor
         stockManager.addStockItem(otStok);
         System.out.println("Stoklar:");
@@ -34,8 +34,8 @@ public class Main {
 
         // Siparişe ait stok gereksinimi
 
-        StockItem etDonerdekiet = new StockItem("et","etdonerdeki et", 1, 650);
-        StockItem etDonerdekiot = new StockItem("ot","etdonerdeki", 10, 10);
+        StockItem etDonerdekiet = new StockItem(3,"et","etdonerdeki et", 1, 650);
+        StockItem etDonerdekiot = new StockItem(4,"ot","etdonerdeki", 10, 10);
         ArrayList<StockItem> etdoner_items = new ArrayList<>();
         etdoner_items.add(etDonerdekiet);
         etdoner_items.add(etDonerdekiot);
@@ -58,7 +58,7 @@ public class Main {
         stockManager.printAllStock();
         order1.setId(2);
         waiter.takeOrder(orderManager, order1); // stok yetersiz olmalı şuan
-        StockItem otStok2 = new StockItem("ot","ot stok", 100, 10);
+        StockItem otStok2 = new StockItem(5,"ot","ot stok", 100, 10);
         stockManager.printAllStock();
 
         stockManager.addStockItem(otStok2);

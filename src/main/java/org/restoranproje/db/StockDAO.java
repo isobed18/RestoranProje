@@ -17,12 +17,13 @@ public class StockDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
+                int id = rs.getInt("id");
                 String name = rs.getString("name");
                 String desc = rs.getString("description");
                 double count = rs.getDouble("count");
                 int price = rs.getInt("price");
 
-                list.add(new StockItem(name, desc, count, price));
+                list.add(new StockItem(id, name, desc, count, price));
             }
 
         } catch (SQLException e) {
