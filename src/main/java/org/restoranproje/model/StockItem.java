@@ -3,7 +3,7 @@ package org.restoranproje.model;
 public class StockItem{
     private String name;
     private String description;
-    private int count;
+    private double count;
     private int price;
     public StockItem(String name, String description, int count,int price) {
         this.name = name;
@@ -23,10 +23,10 @@ public class StockItem{
     public void setDescription(String description) {
         this.description = description;
     }
-    public int getCount() {
+    public double getCount() {
         return count;
     }
-    public void setCount(int count) {
+    public void setCount(double count) {
         this.count = count;
     }
     public int getPrice() {

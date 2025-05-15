@@ -2,11 +2,9 @@ package org.restoranproje.service;
 
 import org.restoranproje.db.OrderDAO;
 import org.restoranproje.model.*;
-import org.restoranproje.model.Observer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
 
 public class OrderManager {
     private List<Observer> observers = new ArrayList<>();
@@ -14,7 +12,8 @@ public class OrderManager {
     private StockManager smanager = new StockManager();
 
     public OrderManager() {
-        // Uygulama başladığında veya OrderManager oluşturulduğunda aktif siparişleri yükle
+        // Uygulama başladığında veya OrderManager oluşturulduğunda aktif siparişleri
+        // yükle
         loadActiveOrders();
     }
 
@@ -37,6 +36,7 @@ public class OrderManager {
         observers.remove(observer);
         smanager.removeObserver(observer);
     }
+
     public StockManager getStockManager() {
         return smanager;
     }
@@ -69,6 +69,7 @@ public class OrderManager {
 
     public void updateOrderStatus(int orderId, OrderStatus newStatus) {
         Order order = findOrderById(orderId);
+
         if (order != null) {
             order.setStatus(newStatus);
             OrderDAO.logOrderHistory(order);
@@ -83,6 +84,11 @@ public class OrderManager {
         } else {
             System.out.println("Order not found");
         }
+
+        if (newStatus == OrderStatus.COMPLETED) {
+            reduceStockIfOrderCompleted(order);
+        }
+
     }
 
     public List<Order> getAllOrders() {
@@ -98,4 +104,46 @@ public class OrderManager {
         }
         return filtered;
     }
+
+    public void reduceStockIfOrderCompleted(Order order) {
+        if (order.getStatus() != OrderStatus.COMPLETED)
+            return;
+
+        for (MenuItem item : order.getItems()) {
+            boolean enough = true;
+            for (RecipeIngredient ri : item.getRecipe()) {
+                if (ri.getStockItem().getCount() < ri.getAmount()) {
+                    enough = false;
+                    break;
+                }
+            }
+
+            if (enough) {
+                for (RecipeIngredient ri : item.getRecipe()) {
+                    StockItem si = ri.getStockItem();
+                    double newQty = si.getCount() - ri.getAmount();
+                    si.setCount(newQty);
+                }
+                item.setFoodStatus(FoodStatus.AVAILABLE);
+            } else {
+                item.setFoodStatus(FoodStatus.OUT_OF_STOCK);
+                System.out.println("UYARI: " + item.getName()
+                        + " adlı ürün için stok yetersiz, sipariş tamamlandıktan sonra devre dışı bırakıldı.");
+            }
+        }
+    }
+
+    public boolean isMenuItemAvailable(MenuItem item) {
+        if (item.getFoodStatus() == FoodStatus.OUT_OF_STOCK)
+            return false;
+
+        for (RecipeIngredient ri : item.getRecipe()) {
+            if (ri.getStockItem().getCount() < ri.getAmount()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

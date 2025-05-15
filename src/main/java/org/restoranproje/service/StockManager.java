@@ -58,7 +58,7 @@ public class StockManager {
         for (MenuItem item : order.getItems()) {
             for (StockItem needed : item.getItems()) {
                 StockItem stockItem = findStockItemByName(needed.getName());
-                int newCount = stockItem.getCount() - needed.getCount();
+                double newCount = stockItem.getCount() - needed.getCount();
                 stockItem.setCount(newCount);
             }
         }
