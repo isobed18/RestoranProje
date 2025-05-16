@@ -3,12 +3,9 @@ package org.restoranproje.model;
 import org.restoranproje.service.OrderManager;
 import org.restoranproje.db.UserDAO;
 
-import java.awt.*;
-import java.util.ArrayList;
-
 public class Waiter extends User {
     public Waiter(String name, String password) {
-        super(name,UserType.WAITER, password);
+        super(name, UserType.WAITER, password);
         UserDAO.saveUser(this);
     }
 
@@ -17,7 +14,7 @@ public class Waiter extends User {
         System.out.println("Waiter " + name + " notified: " + order);
     }
 
-    public void takeOrder(OrderManager manager,Order order ) {
+    public void takeOrder(OrderManager manager, Order order) {
 
         manager.addOrder(order);
         System.out.println("Waiter " + name + " added order: " + order.getDetails());
@@ -25,5 +22,9 @@ public class Waiter extends User {
 
     public void deliverOrder(OrderManager manager, int orderId) {
         manager.updateOrderStatus(orderId, OrderStatus.DELIVERED);
+    }
+
+    public void cancelOrder(OrderManager manager, int orderId) {
+        manager.updateOrderStatus(orderId, OrderStatus.CANCELLED);
     }
 }

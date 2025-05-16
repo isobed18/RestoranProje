@@ -1,19 +1,16 @@
 package org.restoranproje.model;
 
 public class StockItem {
-
-    private int id;
     private String name;
-    private String description;
-    private double count;
-    private int price;
+    private double amount;
+    private String unit;
+    private double unitCost;
 
-    public StockItem(int id, String name, String description, double count, int price) {
-        this.id = id;
+    public StockItem(String name, double amount, String unit, double unitCost) {
         this.name = name;
-        this.description = description;
-        this.count = count;
-        this.price = price;
+        this.amount = amount;
+        this.unit = unit;
+        this.unitCost = unitCost;
     }
 
     public String getName() {
@@ -24,36 +21,27 @@ public class StockItem {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public double getAmount() {
+        return amount;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
-    public double getCount() {
-        return count;
+    public String getUnit() {
+        return unit;
     }
 
-    public void setCount(double count) {
-        this.count = count;
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
-    public int getPrice() {
-        return price;
+    public double getUnitCost() {
+        return unitCost;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public void setUnitCost(double unitCost) {
+        this.unitCost = unitCost;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-}
+} 

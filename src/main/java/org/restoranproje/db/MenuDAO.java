@@ -1,6 +1,8 @@
 package org.restoranproje.db;
 
-import org.restoranproje.model.*;
+import org.restoranproje.model.MenuItem;
+import org.restoranproje.model.MenuItemType;
+import org.restoranproje.model.StockItem;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,101 +10,99 @@ import java.util.List;
 
 public class MenuDAO {
 
-    public static List<MenuItem> getAllMenuItems(List<StockItem> stockItems) {
-        List<MenuItem> items = new ArrayList<>();
-        String sql = "SELECT * FROM menu_items";
+    private Connection connection;
 
-        try (Connection conn = DatabaseManager.connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                String desc = rs.getString("description");
-                MenuItemType type = MenuItemType.valueOf(rs.getString("type"));
-                int price = rs.getInt("price");
-                FoodStatus status = FoodStatus.valueOf(rs.getString("status"));
-
-                MenuItem item = new MenuItem(name, desc, type, price);
-                item.setFoodStatus(status);
-
-                // Tarifleri getir
-                item.setRecipe(getRecipeForMenuItem(conn, id, stockItems));
-
-                items.add(item);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Menü öğeleri çekilirken hata oluştu: " + e.getMessage());
-        }
-
-        return items;
+    public MenuDAO() {
+        connection = DatabaseManager.getConnection();
     }
 
-    private static List<RecipeIngredient> getRecipeForMenuItem(Connection conn, int menuItemId, List<StockItem> stockItems) {
-        List<RecipeIngredient> recipe = new ArrayList<>();
-        String sql = "SELECT stock_item_id, amount FROM menu_item_stock WHERE menu_item_id = ?";
+    public List<MenuItem> getAllMenuItems() {
+        List<MenuItem> menuItems = new ArrayList<>();
+        String menuQuery = "SELECT id, name, description, type, price FROM menu_items";
+        String stockQuery = "SELECT si.name, mis.amount, si.unit, si.unit_cost FROM menu_item_stock mis " +
+                "JOIN stock_items si ON mis.stock_item_id = si.id WHERE mis.menu_item_id = ?";
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, menuItemId);
-            ResultSet rs = pstmt.executeQuery();
+        try (Statement menuStmt = connection.createStatement();
+             ResultSet menuRs = menuStmt.executeQuery(menuQuery);
+             PreparedStatement stockStmt = connection.prepareStatement(stockQuery)) {
 
-            while (rs.next()) {
-                int stockId = rs.getInt("stock_item_id");
-                double amount = rs.getDouble("amount");
+            while (menuRs.next()) {
+                int menuId = menuRs.getInt("id");
+                String name = menuRs.getString("name");
+                String desc = menuRs.getString("description");
+                MenuItemType type = MenuItemType.valueOf(menuRs.getString("type"));
+                double price = menuRs.getDouble("price");
 
-                for (StockItem s : stockItems) {
-                    if (s.getId() == stockId) {
-                        recipe.add(new RecipeIngredient(s, amount));
-                        break;
-                    }
+                ArrayList<StockItem> stockItems = new ArrayList<>();
+                stockStmt.setInt(1, menuId);
+                ResultSet stockRs = stockStmt.executeQuery();
+
+                while (stockRs.next()) {
+                    String stockName = stockRs.getString("name");
+                    double amount = stockRs.getDouble("amount");
+                    String unit = stockRs.getString("unit");
+                    double unitCost = stockRs.getDouble("unit_cost");
+                    stockItems.add(new StockItem(stockName, amount, unit, unitCost));
                 }
+
+                stockRs.close();
+                menuItems.add(new MenuItem(name, desc, type, price, stockItems));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return menuItems;
+    }
+
+    public void insertMenuItem(MenuItem menuItem, int menuItemId, List<Integer> stockItemIds) {
+        String menuQuery = "INSERT INTO menu_items (name, description, type, price) VALUES (?, ?, ?, ?)";
+        String linkQuery = "INSERT INTO menu_item_stock (menu_item_id, stock_item_id, amount) VALUES (?, ?, ?)";
+
+        try (PreparedStatement menuStmt = connection.prepareStatement(menuQuery, Statement.RETURN_GENERATED_KEYS);
+             PreparedStatement linkStmt = connection.prepareStatement(linkQuery)) {
+
+            menuStmt.setString(1, menuItem.getName());
+            menuStmt.setString(2, menuItem.getDescription());
+            menuStmt.setString(3, menuItem.getType().toString());
+            menuStmt.setDouble(4, menuItem.getPrice());
+            menuStmt.executeUpdate();
+
+            ResultSet generatedKeys = menuStmt.getGeneratedKeys();
+            int generatedMenuItemId = menuItemId;
+            if (generatedKeys.next()) {
+                generatedMenuItemId = generatedKeys.getInt(1);
+            }
+
+            for (int i = 0; i < stockItemIds.size(); i++) {
+                int stockItemId = stockItemIds.get(i);
+                StockItem ingredient = menuItem.getItems().get(i);
+                linkStmt.setInt(1, generatedMenuItemId);
+                linkStmt.setInt(2, stockItemId);
+                linkStmt.setDouble(3, ingredient.getAmount());
+                linkStmt.executeUpdate();
             }
 
         } catch (SQLException e) {
-            System.out.println("Tarif yüklenirken hata: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        return recipe;
     }
 
-    public static void insertMenuItem(MenuItem item) {
-        String sql = "INSERT INTO menu_items (name, description, type, price, status) VALUES (?, ?, ?, ?, ?)";
+    public void removeMenuItemByName(String menuItemName) {
+        String deleteLinkQuery = "DELETE FROM menu_item_stock WHERE menu_item_id = (SELECT id FROM menu_items WHERE name = ?)";
+        String deleteMenuQuery = "DELETE FROM menu_items WHERE name = ?";
 
-        try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement linkStmt = connection.prepareStatement(deleteLinkQuery);
+             PreparedStatement menuStmt = connection.prepareStatement(deleteMenuQuery)) {
 
-            pstmt.setString(1, item.getName());
-            pstmt.setString(2, item.getDescription());
-            pstmt.setString(3, item.getType().name());
-            pstmt.setInt(4, item.getPrice());
-            pstmt.setString(5, item.getFoodStatus().name());
+            linkStmt.setString(1, menuItemName);
+            linkStmt.executeUpdate();
 
-            pstmt.executeUpdate();
-
-            ResultSet rs = pstmt.getGeneratedKeys();
-            if (rs.next()) {
-                int menuItemId = rs.getInt(1);
-                insertRecipe(conn, menuItemId, item.getRecipe());
-            }
+            menuStmt.setString(1, menuItemName);
+            menuStmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println("Menü öğesi eklenirken hata oluştu: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
-    private static void insertRecipe(Connection conn, int menuItemId, List<RecipeIngredient> recipe) throws SQLException {
-        String sql = "INSERT INTO menu_item_stock (menu_item_id, stock_item_id, amount) VALUES (?, ?, ?)";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            for (RecipeIngredient ri : recipe) {
-                pstmt.setInt(1, menuItemId);
-                pstmt.setInt(2, ri.getStockItem().getId());
-                pstmt.setDouble(3, ri.getAmount());
-                pstmt.addBatch();
-            }
-            pstmt.executeBatch();
-        }
-    }
-}
+} 

@@ -1,20 +1,15 @@
 package org.restoranproje.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MenuItem {
-
     private String name;
     private String description;
-    private int price;
     private MenuItemType type;
-
     private ArrayList<StockItem> items;
-    private List<RecipeIngredient> recipe = new ArrayList<>();
-    private FoodStatus foodStatus = FoodStatus.AVAILABLE; // varsayılan açık
+    private double price;
 
-    public MenuItem(String name, String description, MenuItemType type, int price, ArrayList<StockItem> items) {
+    public MenuItem(String name, String description, MenuItemType type, double price, ArrayList<StockItem> items) {
         this.name = name;
         this.description = description;
         this.type = type;
@@ -22,29 +17,12 @@ public class MenuItem {
         this.items = items;
     }
 
-    public MenuItem(String name, String description, MenuItemType type, int price) {
-    this.name = name;
-    this.description = description;
-    this.type = type;
-    this.price = price;
-    this.items = new ArrayList<>(); 
-}
-
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
     }
 
     public String getDescription() {
@@ -71,20 +49,21 @@ public class MenuItem {
         this.items = items;
     }
 
-    public List<RecipeIngredient> getRecipe() {
-        return recipe;
+    public double getPrice() {
+        return price;
     }
 
-    public void setRecipe(List<RecipeIngredient> recipe) {
-        this.recipe = recipe;
+    public void setPrice(double price) {
+        this.price = price;
     }
 
-    public FoodStatus getFoodStatus() {
-        return foodStatus;
+    public double getCost() {
+        double totalCost = 0;
+        if (items != null) {
+            for (StockItem item : items) {
+                totalCost += item.getAmount() * item.getUnitCost();
+            }
+        }
+        return totalCost;
     }
-
-    public void setFoodStatus(FoodStatus foodStatus) {
-        this.foodStatus = foodStatus;
-    }
-
-}
+} 

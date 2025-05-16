@@ -2,7 +2,6 @@ package org.restoranproje.service;
 
 import org.restoranproje.db.OrderDAO;
 import org.restoranproje.model.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +11,6 @@ public class OrderManager {
     private StockManager smanager = new StockManager();
 
     public OrderManager() {
-        // Uygulama başladığında veya OrderManager oluşturulduğunda aktif siparişleri
-        // yükle
         loadActiveOrders();
     }
 
@@ -57,8 +54,12 @@ public class OrderManager {
     }
 
     public void addOrder(Order order) {
-        if (smanager.canFulfillOrder(order)) {
+        if (order.getStatus() != OrderStatus.CANCELLED && smanager.canFulfillOrder(order)) {
             smanager.fulfillOrder(order);
+            orders.add(order);
+            OrderDAO.logOrderHistory(order);
+            notifyObservers(order);
+        } else if (order.getStatus() == OrderStatus.CANCELLED) {
             orders.add(order);
             OrderDAO.logOrderHistory(order);
             notifyObservers(order);
@@ -69,26 +70,20 @@ public class OrderManager {
 
     public void updateOrderStatus(int orderId, OrderStatus newStatus) {
         Order order = findOrderById(orderId);
-
         if (order != null) {
             order.setStatus(newStatus);
             OrderDAO.logOrderHistory(order);
             if (newStatus == OrderStatus.DELIVERED) {
                 OrderDAO.saveCompletedOrder(order);
             }
-            if (newStatus == OrderStatus.CANCELLEDBP) {
+            if (newStatus == OrderStatus.CANCELLED) {
                 smanager.restoreStockForOrder(order);
             }
             notifyObservers(order);
-            System.out.println("Durum güncellendi: " + order); // Durum güncellendi mesajını buraya taşıdım
+            System.out.println("Durum güncellendi: " + order);
         } else {
             System.out.println("Order not found");
         }
-
-        if (newStatus == OrderStatus.COMPLETED) {
-            reduceStockIfOrderCompleted(order);
-        }
-
     }
 
     public List<Order> getAllOrders() {
@@ -104,46 +99,4 @@ public class OrderManager {
         }
         return filtered;
     }
-
-    public void reduceStockIfOrderCompleted(Order order) {
-        if (order.getStatus() != OrderStatus.COMPLETED)
-            return;
-
-        for (MenuItem item : order.getItems()) {
-            boolean enough = true;
-            for (RecipeIngredient ri : item.getRecipe()) {
-                if (ri.getStockItem().getCount() < ri.getAmount()) {
-                    enough = false;
-                    break;
-                }
-            }
-
-            if (enough) {
-                for (RecipeIngredient ri : item.getRecipe()) {
-                    StockItem si = ri.getStockItem();
-                    double newQty = si.getCount() - ri.getAmount();
-                    si.setCount(newQty);
-                }
-                item.setFoodStatus(FoodStatus.AVAILABLE);
-            } else {
-                item.setFoodStatus(FoodStatus.OUT_OF_STOCK);
-                System.out.println("UYARI: " + item.getName()
-                        + " adlı ürün için stok yetersiz, sipariş tamamlandıktan sonra devre dışı bırakıldı.");
-            }
-        }
-    }
-
-    public boolean isMenuItemAvailable(MenuItem item) {
-        if (item.getFoodStatus() == FoodStatus.OUT_OF_STOCK)
-            return false;
-
-        for (RecipeIngredient ri : item.getRecipe()) {
-            if (ri.getStockItem().getCount() < ri.getAmount()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
 }
