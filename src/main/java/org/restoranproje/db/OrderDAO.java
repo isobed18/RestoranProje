@@ -89,15 +89,16 @@ public class OrderDAO {
                         stockItemsStmt.setInt(1, menuItemId);
                         ResultSet stockItemsRs = stockItemsStmt.executeQuery();
                         while (stockItemsRs.next()) {
+                            int stockID = stockItemsRs.getInt("id");
                             String stockName = stockItemsRs.getString("stock_name");
                             String stockDescription = stockItemsRs.getString("stock_desc");
                             int stockCount = stockItemsRs.getInt("count");
                             int stockPrice = stockItemsRs.getInt("stock_price");
-                            stockItems.add(new StockItem(stockName, stockDescription, stockCount, stockPrice));
+                            stockItems.add(new StockItem(stockID, stockName, stockDescription, stockCount, stockPrice));
                         }
                         stockItemsRs.close();
 
-                        order.getItems().add(new MenuItem(menuName, menuDescription, menuItemType, menuPrice, stockItems));
+                        order.getItems().add(new MenuItem(menuName, menuDescription, menuItemType, menuPrice));
                     }
                     menuItemRs.close();
                 }
