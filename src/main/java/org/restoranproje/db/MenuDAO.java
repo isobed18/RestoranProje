@@ -19,7 +19,7 @@ public class MenuDAO {
     public List<MenuItem> getAllMenuItems() {
         List<MenuItem> menuItems = new ArrayList<>();
         String menuQuery = "SELECT id, name, description, type, price FROM menu_items";
-        String stockQuery = "SELECT si.name, si.amount, si.unit, si.unit_cost FROM menu_item_stock mis " +
+        String stockQuery = "SELECT si.name, mis.amount, si.unit, si.unit_cost FROM menu_item_stock mis " +
                 "JOIN stock_items si ON mis.stock_item_id = si.id WHERE mis.menu_item_id = ?";
 
         try (Statement menuStmt = connection.createStatement();
@@ -57,7 +57,7 @@ public class MenuDAO {
 
     public void insertMenuItem(MenuItem menuItem, int menuItemId, List<Integer> stockItemIds) {
         String menuQuery = "INSERT INTO menu_items (name, description, type, price) VALUES (?, ?, ?, ?)";
-        String linkQuery = "INSERT INTO menu_item_stock (menu_item_id, stock_item_id) VALUES (?, ?)";
+        String linkQuery = "INSERT INTO menu_item_stock (menu_item_id, stock_item_id, amount) VALUES (?, ?, ?)";
 
         try (PreparedStatement menuStmt = connection.prepareStatement(menuQuery, Statement.RETURN_GENERATED_KEYS);
              PreparedStatement linkStmt = connection.prepareStatement(linkQuery)) {
@@ -74,9 +74,12 @@ public class MenuDAO {
                 generatedMenuItemId = generatedKeys.getInt(1);
             }
 
-            for (int stockItemId : stockItemIds) {
+            for (int i = 0; i < stockItemIds.size(); i++) {
+                int stockItemId = stockItemIds.get(i);
+                StockItem ingredient = menuItem.getItems().get(i);
                 linkStmt.setInt(1, generatedMenuItemId);
                 linkStmt.setInt(2, stockItemId);
+                linkStmt.setDouble(3, ingredient.getAmount());
                 linkStmt.executeUpdate();
             }
 

@@ -24,7 +24,7 @@ public class DatabaseManager {
 
     public static void setupDatabase() {
         try (Connection conn = connect();
-                Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
 
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS order_history (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -54,6 +54,7 @@ public class DatabaseManager {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS menu_item_stock (" +
                     "menu_item_id INTEGER," +
                     "stock_item_id INTEGER," +
+                    "amount REAL," +  // EKLENDİ: Tarif için gerekli miktar
                     "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)," +
                     "FOREIGN KEY (stock_item_id) REFERENCES stock_items(id)," +
                     "PRIMARY KEY (menu_item_id, stock_item_id))");
