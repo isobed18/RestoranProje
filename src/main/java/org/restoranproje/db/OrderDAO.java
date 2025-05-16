@@ -119,4 +119,28 @@ public class OrderDAO {
             System.err.println("Completed order already saved: " + order.getId());
         }
     }
+    public static List<Order> getFullOrderHistory() {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT order_id, details, status FROM order_history ORDER BY id"; // sıralı geçmiş
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+                String details = rs.getString("details");
+                String statusStr = rs.getString("status");
+
+                Order order = new Order(orderId, details, new ArrayList<>());
+                order.setStatus(OrderStatus.valueOf(statusStr));
+                orders.add(order);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
 }

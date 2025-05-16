@@ -60,7 +60,7 @@
                         <Font name="Century Gothic Bold" size="13.0" />
                      </font>
                   </Button>
-                  <Button fx:id="stock_button" layoutX="20.0" layoutY="183.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="174.0" text="STOCK">
+                  <Button fx:id="stock_button" layoutX="20.0" layoutY="183.0" mnemonicParsing="false" onMouseClicked="#handleStockButtonClick" prefHeight="34.0" prefWidth="174.0" text="STOCK">
                      <graphic>
                         <ImageView fitHeight="26.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -99,7 +99,7 @@
                </children>
             </AnchorPane>
          </children></VBox>
-      <Pane prefHeight="534.0" prefWidth="653.0">
+      <Pane fx:id="view_pane" prefHeight="534.0" prefWidth="653.0">
          <children>
             <TableView fx:id="order_history" layoutX="14.0" layoutY="14.0" prefHeight="282.0" prefWidth="624.0">
               <columns>

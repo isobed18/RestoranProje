@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1"
+            fx:controller="org.restoranproje.gui.StockEditController" prefWidth="653" prefHeight="534">
+    <children>
+        <Label layoutX="250.0" layoutY="250.0" text="Stock Edit Sayfası"/>
+    </children>
+</AnchorPane>
