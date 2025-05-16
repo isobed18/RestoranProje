@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.restoranproje.gui.WaiterGuiController"
+            prefWidth="900" prefHeight="600">
+
+    <left>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <Label text="Menü Ürünleri"/>
+            <TableView fx:id="menu_table" prefWidth="350">
+                <columns>
+                    <TableColumn fx:id="colMenuName" text="Ad" prefWidth="100"/>
+                    <TableColumn fx:id="colMenuDescription" text="Açıklama" prefWidth="120"/>
+                    <TableColumn fx:id="colMenuType" text="Tür" prefWidth="70"/>
+                    <TableColumn fx:id="colMenuPrice" text="Fiyat" prefWidth="60"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <Label text="Aktif Siparişler"/>
+            <TableView fx:id="order_table">
+                <columns>
+                    <TableColumn fx:id="colOrderID" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="colOrderDetails" text="Detay" prefWidth="200"/>
+                    <TableColumn fx:id="colOrderStatus" text="Durum" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <TextArea fx:id="detail_textarea" promptText="Sipariş detayları yazın..." prefColumnCount="30"/>
+            <Button fx:id="add_button" text="Sipariş Ekle" onMouseClicked="#handleAddClick"/>
+            <Button fx:id="deliver_button" text="Teslim Et" onMouseClicked="#handleDeliverClick"/>
+            <Button fx:id="cancel_button" text="İptal Et" onMouseClicked="#handleCancelClick"/>
+        </HBox>
+    </bottom>
+</BorderPane>
