@@ -1,5 +1,5 @@
 package org.restoranproje.model;
-
+//deneme
 import org.restoranproje.db.MenuDAO;
 import org.restoranproje.db.StockDAO;
 import org.restoranproje.db.UserDAO;
