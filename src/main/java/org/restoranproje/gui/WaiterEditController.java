@@ -6,18 +6,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import org.restoranproje.db.DatabaseManager;
-import org.restoranproje.db.UserDAO;
-import org.restoranproje.model.Chef;
 import org.restoranproje.model.User;
 import org.restoranproje.model.UserType;
+import org.restoranproje.model.Waiter;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ChefEditController {
+public class WaiterEditController {
 
-    @FXML private TableView<User> chef_table;
+    @FXML private TableView<User> waiter_table;
     @FXML private TableColumn<User, String> colName;
     @FXML private TableColumn<User, String> colPassword;
     @FXML private TableColumn<User, String> colRole;
@@ -26,7 +23,7 @@ public class ChefEditController {
     @FXML private TextField add_password;
     @FXML private TextField delete_name;
 
-    private final ObservableList<User> chefList = FXCollections.observableArrayList();
+    private final ObservableList<User> waiterList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -34,20 +31,20 @@ public class ChefEditController {
         colPassword.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getPassword()));
         colRole.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getUserType().toString()));
 
-        loadChefs();
+        loadWaiters();
 
-        chef_table.setOnMouseClicked(event -> {
-            User selected = chef_table.getSelectionModel().getSelectedItem();
+        waiter_table.setOnMouseClicked(event -> {
+            User selected = waiter_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 delete_name.setText(selected.getName());
             }
         });
     }
 
-    private void loadChefs() {
-        chefList.clear();
+    private void loadWaiters() {
+        waiterList.clear();
 
-        String query = "SELECT name, password, role FROM users WHERE role = 'CHEF'";
+        String query = "SELECT name, password, role FROM users WHERE role = 'WAITER'";
         try (Connection conn = DatabaseManager.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -55,20 +52,17 @@ public class ChefEditController {
             while (rs.next()) {
                 String name = rs.getString("name");
                 String password = rs.getString("password");
-                String role = rs.getString("role");
 
-                // Veritabanından gelen kullanıcıyı tekrar kaydetme!
-                Chef chef = new Chef(name, password, false); // ❗ Kaydetmeden oluştur
-                chefList.add(chef);
+                Waiter waiter = new Waiter(name, password, false); // DB'ye tekrar yazmasın
+                waiterList.add(waiter);
             }
 
-            chef_table.setItems(chefList);
+            waiter_table.setItems(waiterList);
 
         } catch (SQLException e) {
-            showAlert("Veritabanından şefler alınamadı: " + e.getMessage());
+            showAlert("Veritabanından garsonlar alınamadı: " + e.getMessage());
         }
     }
-
 
     @FXML
     void handleAddClick(MouseEvent event) {
@@ -80,16 +74,9 @@ public class ChefEditController {
             return;
         }
 
-        // Veritabanına kaydeden constructor
-        Chef newChef = new Chef(name, password);
+        new Waiter(name, password); // DB'ye kaydeden constructor
+        loadWaiters();
 
-        // Eskiden buradaydı:
-        // chefList.add(newChef); ❌ TABLOYA İKİNCİ KEZ EKLİYORDU
-
-        // Onun yerine sadece tabloyu yenile:
-        loadChefs(); // ✅ Tüm veritabanını okuyup tek seferlik yazıyor
-
-        // Alanları temizle
         add_name.clear();
         add_password.clear();
     }
@@ -103,30 +90,27 @@ public class ChefEditController {
             return;
         }
 
-        String query = "DELETE FROM users WHERE name = ? AND role = 'CHEF'";
+        String query = "DELETE FROM users WHERE name = ? AND role = 'WAITER'";
 
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, name);
-            int affectedRows = pstmt.executeUpdate();
+            int affected = pstmt.executeUpdate();
 
-            if (affectedRows > 0) {
-                showAlert("Şef başarıyla silindi.");
+            if (affected > 0) {
+                showAlert("Garson silindi.");
             } else {
-                showAlert("Şef bulunamadı. Belki isim yanlış girildi?");
+                showAlert("Garson bulunamadı.");
             }
 
-            loadChefs();           // tabloyu güncelle
-            delete_name.clear();   // alanı temizle
+            loadWaiters();
+            delete_name.clear();
 
         } catch (SQLException e) {
-            showAlert("Şef silinirken hata: " + e.getMessage());
+            showAlert("Silme hatası: " + e.getMessage());
         }
     }
-
-
-
 
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

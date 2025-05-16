@@ -8,6 +8,12 @@ public class Waiter extends User {
         super(name, UserType.WAITER, password);
         UserDAO.saveUser(this);
     }
+    public Waiter(String name, String password, boolean saveToDB) {
+        super(name, UserType.WAITER, password);
+        if (saveToDB) {
+            UserDAO.saveUser(this);
+        }
+    }
 
     @Override
     public void update(Order order) {
