@@ -9,6 +9,13 @@ public class Chef extends User {
         UserDAO.saveUser(this);
     }
 
+    public Chef(String name, String password, boolean saveToDB) {
+        super(name, UserType.CHEF, password);
+        if (saveToDB) {
+            UserDAO.saveUser(this);
+        }
+    }
+
     @Override
     public void update(Order order) {
         System.out.println("Chef " + name + " notified: " + order);

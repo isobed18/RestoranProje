@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import org.restoranproje.db.DatabaseManager;
 import org.restoranproje.db.UserDAO;
 import org.restoranproje.model.Chef;
 import org.restoranproje.model.User;
@@ -47,7 +48,7 @@ public class ChefEditController {
         chefList.clear();
 
         String query = "SELECT name, password, role FROM users WHERE role = 'CHEF'";
-        try (Connection conn = org.restoranproje.db.DatabaseManager.connect();
+        try (Connection conn = DatabaseManager.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
@@ -56,7 +57,8 @@ public class ChefEditController {
                 String password = rs.getString("password");
                 String role = rs.getString("role");
 
-                User chef = new Chef(name, password); // Chef sınıfı User'dan türediği için çalışır
+                // Veritabanından gelen kullanıcıyı tekrar kaydetme!
+                Chef chef = new Chef(name, password, false); // ❗ Kaydetmeden oluştur
                 chefList.add(chef);
             }
 
@@ -66,6 +68,7 @@ public class ChefEditController {
             showAlert("Veritabanından şefler alınamadı: " + e.getMessage());
         }
     }
+
 
     @FXML
     void handleAddClick(MouseEvent event) {
