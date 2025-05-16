@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.restoranproje.gui.OrderEditController"
+            prefWidth="653.0" prefHeight="534.0">
+
+    <children>
+
+        <!-- Sipariş Tablosu -->
+        <TableView fx:id="order_history" layoutX="14.0" layoutY="14.0" prefHeight="282.0" prefWidth="624.0">
+            <columns>
+                <TableColumn fx:id="colID" prefWidth="75.0" text="Order Id"/>
+                <TableColumn fx:id="colDetail" prefWidth="200.0" text="Details"/>
+                <TableColumn fx:id="colStatus" prefWidth="100.0" text="Status"/>
+            </columns>
+        </TableView>
+
+        <!-- Status Giriş Alanı -->
+        <TextField fx:id="status_textbox" layoutX="54.0" layoutY="323.0" prefWidth="200.0"/>
+
+        <!-- Butonlar -->
+        <Button fx:id="cancel_button" layoutX="140.0" layoutY="384.0" text="cancel" onMouseClicked="#cancel_click"/>
+        <Button fx:id="complete_button" layoutX="63.0" layoutY="384.0" text="complete" onMouseClicked="#complete_click"/>
+        <Button fx:id="deliver_button" layoutX="102.0" layoutY="420.0" text="deliver" onMouseClicked="#deliver_click"/>
+
+    </children>
+</AnchorPane>
