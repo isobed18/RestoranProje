@@ -104,13 +104,14 @@
             <TableView fx:id="order_history" layoutX="14.0" layoutY="14.0" prefHeight="282.0" prefWidth="624.0">
               <columns>
                 <TableColumn fx:id="colID" prefWidth="75.0" text="Id" />
-                <TableColumn fx:id="colDetail" prefWidth="75.0" text="Details" />
-                  <TableColumn fx:id="colStatus" prefWidth="75.0" text="Status" />
-                  <TableColumn fx:id="colTime" prefWidth="75.0" text="Time" />
+                <TableColumn fx:id="colDetail" prefWidth="111.99992370605469" text="Details" />
+                  <TableColumn fx:id="colStatus" prefWidth="65.5999755859375" text="Status" />
               </columns>
             </TableView>
-            <TextField fx:id="order_history_textbox" layoutX="251.0" layoutY="313.0" />
-            <Button fx:id="order_history_button" layoutX="308.0" layoutY="359.0" mnemonicParsing="false" onMouseClicked="#save_change_order" text="Button" />
+            <Button fx:id="cancel_button" layoutX="140.0" layoutY="384.0" mnemonicParsing="false" onMouseClicked="#cancel_click" text="cancel" />
+            <Button fx:id="deliver_button" layoutX="102.0" layoutY="420.0" mnemonicParsing="false" onMouseClicked="#deliver_click" text="deliver" />
+            <Button fx:id="complete_button" layoutX="63.0" layoutY="384.0" mnemonicParsing="false" onMouseClicked="#complete_click" text="complete" />
+            <TextField fx:id="status_textbox" layoutX="54.0" layoutY="323.0" />
          </children>
       </Pane>
    </children>
