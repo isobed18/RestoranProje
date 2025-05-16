@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="587.0" prefWidth="910.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.restoranproje.gui.WaiterguiController">
+   <children>
+      <AnchorPane prefHeight="400.0" prefWidth="616.0">
+         <children>
+            <AnchorPane fx:id="screen_pane" layoutX="153.0" prefHeight="587.0" prefWidth="758.0" styleClass="side_ankerpane1" stylesheets="@design.css">
+               <children>
+                  <TableView fx:id="order_table" layoutX="14.0" layoutY="54.0" prefHeight="316.0" prefWidth="312.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
+                    </columns>
+                  </TableView>
+                  <TableView fx:id="menu_table" layoutX="330.0" layoutY="54.0" prefHeight="316.0" prefWidth="413.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+                     <columns>
+                        <TableColumn prefWidth="75.0" text="C1" />
+                        <TableColumn prefWidth="75.0" text="C2" />
+                     </columns>
+                  </TableView>
+                  <Pane layoutX="130.0" layoutY="14.0" prefHeight="26.0" prefWidth="126.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+                     <children>
+                        <Text fill="WHITE" layoutX="27.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Siparişler">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </Pane>
+                  <Pane layoutX="494.0" layoutY="14.0" prefHeight="26.0" prefWidth="126.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+                     <children>
+                        <Text fill="WHITE" layoutX="39.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Menu">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </Pane>
+               </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="234.0" prefWidth="154.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+               <children>
+                  <ImageView fitHeight="132.0" fitWidth="142.0" layoutX="11.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../images/icons8-waiter-100.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </AnchorPane>
+            <AnchorPane layoutY="234.0" prefHeight="165.0" prefWidth="154.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+               <children>
+                  <Text fill="WHITE" layoutX="43.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Status">
+                     <font>
+                        <Font name="Calibri Bold" size="25.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="durum_text" fill="WHITE" layoutX="14.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Lorem Ipsum" textAlignment="CENTER" wrappingWidth="132.0">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Text>
+               </children>
+            </AnchorPane>
+            <AnchorPane layoutY="393.0" prefHeight="195.0" prefWidth="154.0" styleClass="side_ankerpane2" stylesheets="@design.css">
+               <children>
+                  <Button fx:id="takeorder" layoutX="26.0" layoutY="139.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Sipariş oluştur">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="deliver_button" layoutX="26.0" layoutY="98.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="Teslim et">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="cancel_button" layoutX="26.0" layoutY="57.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="102.0" text="İptal et">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
+               </children></AnchorPane>
+         </children>
+      </AnchorPane>
+   </children>
+</HBox>

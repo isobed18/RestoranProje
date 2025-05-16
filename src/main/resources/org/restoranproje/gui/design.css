@@ -28,3 +28,10 @@
     -fx-border-style: solid;
 }
 
+.side_ankerpane2{
+    -fx-background-color:black;
+    -fx-border-width: 2px 2px 2px 2px;
+    -fx-border-style: solid;
+
+}
+
