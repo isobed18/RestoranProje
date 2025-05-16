@@ -1,6 +1,7 @@
 package org.restoranproje.model;
 
 import org.restoranproje.db.MenuDAO;
+import org.restoranproje.db.StockDAO;
 import org.restoranproje.db.UserDAO;
 import org.restoranproje.service.OrderManager;
 import org.restoranproje.service.StockManager;
@@ -40,5 +41,17 @@ public class Manager extends User {
 
     public void addMenuItem(MenuDAO menuDAO, MenuItem menuItem, int menuItemId, List<Integer> stockItemIds) {
         menuDAO.insertMenuItem(menuItem, menuItemId, stockItemIds);
+    }
+
+    public void removeStockItem(StockDAO stockDAO, String stockItemName) {
+        stockDAO.removeStockItemByName(stockItemName);
+    }
+
+    public void removeMenuItem(MenuDAO menuDAO, String menuItemName) {
+        menuDAO.removeMenuItemByName(menuItemName);
+    }
+
+    public void changeUnitCost(StockDAO stockDAO, String stockItemName, double newUnitCost) {
+        stockDAO.updateUnitCost(stockItemName, newUnitCost);
     }
 } 

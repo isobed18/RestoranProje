@@ -114,5 +114,20 @@ public class Main {
         for (StockItem item : stockDAO.getAllStockItems()) {
             System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " " + item.getUnit());
         }
+
+        System.out.println("\n🧪 YÖNETİCİ TESTİ: Menü ve Stok Ürünlerini Kaldır/Güncelle");
+        mudur.removeStockItem(stockDAO, "Domates");
+        mudur.removeMenuItem(menuDAO, "Adana Kebap");
+        mudur.changeUnitCost(stockDAO, "Soğan", 3.0);
+
+        System.out.println("\n🆕 Veritabanı Stok Durumu (Silme ve Güncelleme Sonrası):");
+        for (StockItem item : stockDAO.getAllStockItems()) {
+            System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " / unit: " + item.getUnit() + " / unitCost: " + item.getUnitCost());
+        }
+
+        System.out.println("\n🆕 Veritabanı Menü Durumu (Silme Sonrası):");
+        for (MenuItem item : menuDAO.getAllMenuItems()) {
+            System.out.println("[DB MENU] " + item.getName() + " - ₺" + item.getPrice());
+        }
     }
 }

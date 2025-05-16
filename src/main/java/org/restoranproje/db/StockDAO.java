@@ -87,4 +87,19 @@ public class StockDAO {
         }
         return null;
     }
+
+    public void removeStockItemByName(String name) {
+        deleteStockItem(name);
+    }
+
+    public void updateUnitCost(String stockItemName, double newUnitCost) {
+        String query = "UPDATE stock_items SET unit_cost = ? WHERE name = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setDouble(1, newUnitCost);
+            pstmt.setString(2, stockItemName);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 } 

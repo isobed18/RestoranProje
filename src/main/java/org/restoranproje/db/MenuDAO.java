@@ -87,4 +87,22 @@ public class MenuDAO {
             e.printStackTrace();
         }
     }
+
+    public void removeMenuItemByName(String menuItemName) {
+        String deleteLinkQuery = "DELETE FROM menu_item_stock WHERE menu_item_id = (SELECT id FROM menu_items WHERE name = ?)";
+        String deleteMenuQuery = "DELETE FROM menu_items WHERE name = ?";
+
+        try (PreparedStatement linkStmt = connection.prepareStatement(deleteLinkQuery);
+             PreparedStatement menuStmt = connection.prepareStatement(deleteMenuQuery)) {
+
+            linkStmt.setString(1, menuItemName);
+            linkStmt.executeUpdate();
+
+            menuStmt.setString(1, menuItemName);
+            menuStmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 } 
