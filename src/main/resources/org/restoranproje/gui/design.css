@@ -35,3 +35,14 @@
 
 }
 
+.side_ankerpane3{
+    -fx-background-color:#748CF1;
+    -fx-border-width: 2px 2px 2px 2px;
+    -fx-border-style: solid;
+    -fx-border-radius: 30px;
+    -fx-background-radius: 30px;
+
+
+
+}
+

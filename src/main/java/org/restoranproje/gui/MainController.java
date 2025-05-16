@@ -50,7 +50,7 @@ public class MainController {
     private Button order_history_button;
 
     @FXML
-    private TextField order_history_textbox;
+    private ComboBox<String> status_combobox;
 
     @FXML
     private AnchorPane side_ankerpane;
@@ -81,12 +81,18 @@ public class MainController {
         colStatus.setCellValueFactory(data -> data.getValue().statusProperty());
         colTime.setCellValueFactory(data -> data.getValue().timestampProperty());
 
-        // Tablo tıklanınca TextField'e status yaz
+        // Status enum'larını ComboBox'a ekle
+        for (OrderStatus status : OrderStatus.values()) {
+            status_combobox.getItems().add(status.name());
+        }
+
         order_history.setOnMouseClicked((MouseEvent event) -> {
             OrderHistory selected = order_history.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 selectedOrderId = Integer.parseInt(selected.orderIdProperty().getValue());
-                order_history_textbox.setText(selected.statusProperty().get());
+
+                // Seçilen siparişin durumunu ComboBox'ta göster
+                status_combobox.setValue(selected.statusProperty().get());
             }
         });
 
@@ -126,14 +132,19 @@ public class MainController {
             return;
         }
 
-        String newStatusStr = order_history_textbox.getText().toUpperCase().trim();
+        String selectedStatus = status_combobox.getValue();
+        if (selectedStatus == null || selectedStatus.isEmpty()) {
+            System.out.println("Lütfen bir durum seçin.");
+            return;
+        }
+
         try {
-            OrderStatus newStatus = OrderStatus.valueOf(newStatusStr);
+            OrderStatus newStatus = OrderStatus.valueOf(selectedStatus.toUpperCase());
             manager.changeOrderStatus(orderManager, selectedOrderId, newStatus);
             System.out.println("Durum güncellendi.");
-            loadDataFromDatabase(); // Tabloyu yenile
+            loadDataFromDatabase();
         } catch (IllegalArgumentException e) {
-            System.out.println("Geçersiz durum girdiniz.");
+            System.out.println("Geçersiz durum seçildi.");
         }
     }
 }
