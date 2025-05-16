@@ -16,7 +16,7 @@
    <children>
       <VBox prefHeight="463.0" prefWidth="130.0">
          <children>
-            <AnchorPane fx:id="side_ankerpane" prefHeight="534.0" prefWidth="203.0" styleClass="side_ankerpane" stylesheets="@design.css">
+            <AnchorPane fx:id="side_ankerpane" prefHeight="534.0" prefWidth="203.0" styleClass="side_ankerpane1" stylesheets="@design.css">
                <children>
                   <Pane fx:id="inner_pane" layoutX="4.0" layoutY="14.0" prefHeight="59.0" prefWidth="194.0" styleClass="inner_pane" stylesheets="@design.css">
                      <children>
@@ -99,7 +99,7 @@
                </children>
             </AnchorPane>
          </children></VBox>
-      <Pane prefHeight="534.0" prefWidth="653.0">
+      <Pane prefHeight="534.0" prefWidth="653.0" styleClass="side_ankerpane2" stylesheets="@design.css">
          <children>
             <TableView fx:id="order_history" layoutX="14.0" layoutY="14.0" prefHeight="282.0" prefWidth="624.0">
               <columns>
