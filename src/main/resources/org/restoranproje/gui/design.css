@@ -22,3 +22,9 @@
     -fx-border-style: solid;
     -fx-border-color: #748CF1;
 }
+.side_ankerpane1{
+    -fx-background-color:#353A56;
+    -fx-border-width: 2px 2px 2px 2px;
+    -fx-border-style: solid;
+}
+
