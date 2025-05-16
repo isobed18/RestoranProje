@@ -13,11 +13,7 @@ public class Chef extends User {
     public void update(Order order) {
         System.out.println("Chef " + name + " notified: " + order);
     }
-
-    public void prepareOrder(OrderManager manager, int orderId) {
-        manager.updateOrderStatus(orderId, OrderStatus.PREPARING);
-    }
-
+    
     public void completeOrder(OrderManager manager, int orderId) {
         manager.updateOrderStatus(orderId, OrderStatus.COMPLETED);
     }

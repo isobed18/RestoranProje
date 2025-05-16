@@ -1,16 +1,22 @@
 package org.restoranproje.service;
 
+import org.restoranproje.db.StockDAO;
 import org.restoranproje.model.Observer;
 import org.restoranproje.model.Order;
 import org.restoranproje.model.StockItem;
 import org.restoranproje.model.MenuItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class StockManager {
     private List<Observer> observers = new ArrayList<>();
     private List<StockItem> stockItems = new ArrayList<>();
+    private StockDAO stockDAO = new StockDAO();
 
+    public StockManager() {
+        stockItems.addAll(stockDAO.getAllStockItems());
+    }
 
     public void addObserver(Observer observer) {
         observers.add(observer);
@@ -20,33 +26,38 @@ public class StockManager {
         observers.remove(observer);
     }
 
-    public void notifyObservers(Order order) { // order bildirimi
+    public void notifyObservers(Order order) {
         for (Observer obs : observers) {
-            obs.update(order); // order geldiğinde (burada herhangi bir değişiklik olunca order geliyor)
-            // observerlara bildirim düşüyor
+            obs.update(order);
         }
     }
+
     public void addStockItem(StockItem item) {
         for (StockItem stockItem : stockItems) {
             if (stockItem.getName().equals(item.getName())) {
-                stockItem.setCount(stockItem.getCount() + item.getCount()); // üzerine ekle
+                stockItem.setAmount(stockItem.getAmount() + item.getAmount());
+                stockDAO.updateStockItem(stockItem);
                 return;
             }
         }
-        stockItems.add(item); // yeni ürünse ekle
+        stockItems.add(item);
+        stockDAO.insertStockItem(item);
     }
+
     public void removeStockItem(StockItem item) {
         for (StockItem stockItem : stockItems) {
             if (stockItem.getName().equals(item.getName())) {
-                stockItem.setCount(stockItem.getCount() - item.getCount());
+                stockItem.setAmount(stockItem.getAmount() - item.getAmount());
+                stockDAO.updateStockItem(stockItem);
             }
         }
     }
+
     public boolean canFulfillOrder(Order order) {
         for (MenuItem item : order.getItems()) {
             for (StockItem needed : item.getItems()) {
                 StockItem stockItem = findStockItemByName(needed.getName());
-                if (stockItem == null || stockItem.getCount() < needed.getCount()) {
+                if (stockItem == null || stockItem.getAmount() < needed.getAmount()) {
                     return false;
                 }
             }
@@ -58,8 +69,9 @@ public class StockManager {
         for (MenuItem item : order.getItems()) {
             for (StockItem needed : item.getItems()) {
                 StockItem stockItem = findStockItemByName(needed.getName());
-                int newCount = stockItem.getCount() - needed.getCount();
-                stockItem.setCount(newCount);
+                double newAmount = stockItem.getAmount() - needed.getAmount();
+                stockItem.setAmount(newAmount);
+                stockDAO.updateStockItem(stockItem);
             }
         }
     }
@@ -72,24 +84,23 @@ public class StockManager {
         }
         return null;
     }
+
     public void restoreStockForOrder(Order order) {
         for (MenuItem item : order.getItems()) {
             for (StockItem used : item.getItems()) {
                 StockItem stock = findStockItemByName(used.getName());
                 if (stock != null) {
-                    stock.setCount(stock.getCount() + used.getCount());
+                    stock.setAmount(stock.getAmount() + used.getAmount());
+                    stockDAO.updateStockItem(stock);
                 }
             }
         }
     }
+
     public void printAllStock() {
         for (StockItem stockItem : stockItems) {
-            System.out.println("name: " + stockItem.getName() + "/count: " + stockItem.getCount() +
-                    "/detail: " + stockItem.getDescription());
-
+            System.out.println("name: " + stockItem.getName() + "/amount: " + stockItem.getAmount() +
+                    "/unit: " + stockItem.getUnit() + "/unitCost: " + stockItem.getUnitCost());
         }
     }
-
-
-
-}
+} 
