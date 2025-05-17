@@ -45,7 +45,7 @@ public class LoginController {
         // Validate against database
         if (UserDAO.validateUser(username, password, selectedType)) {
             try {
-                openAppropriateInterface(selectedType);
+                openAppropriateInterface(selectedType, username, password);
             } catch (IOException e) {
                 showError("Hata", "Arayüz yüklenirken hata oluştu: " + e.getMessage());
             }
@@ -54,32 +54,41 @@ public class LoginController {
         }
     }
 
-    private void openAppropriateInterface(UserType userType) throws IOException {
+    private void openAppropriateInterface(UserType userType, String username, String password) throws IOException {
         String fxmlPath;
         String title;
+        FXMLLoader loader = new FXMLLoader();
 
         switch (userType) {
             case MANAGER:
                 fxmlPath = "/org/restoranproje/gui/managergui.fxml";
                 title = "Yönetici Arayüzü";
+                loader = new FXMLLoader(getClass().getResource(fxmlPath));
                 break;
             case WAITER:
                 fxmlPath = "/org/restoranproje/gui/waitergui.fxml";
                 title = "Garson Arayüzü";
-                break;
+                loader = new FXMLLoader(getClass().getResource(fxmlPath));
+                Parent root = loader.load();
+                WaiterGuiController controller = loader.getController();
+                controller.setWaiter(username, password);
+                loadInterface(title, root);
+                return;
             case CHEF:
                 fxmlPath = "/org/restoranproje/gui/chefgui.fxml";
                 title = "Şef Arayüzü";
+                loader = new FXMLLoader(getClass().getResource(fxmlPath));
                 break;
             default:
                 showError("Hata", "Geçersiz kullanıcı tipi!");
                 return;
         }
 
-        // Load the new interface
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         Parent root = loader.load();
+        loadInterface(title, root);
+    }
 
+    private void loadInterface(String title, Parent root) {
         // Get the current stage
         Stage currentStage = (Stage) usernameField.getScene().getWindow();
 

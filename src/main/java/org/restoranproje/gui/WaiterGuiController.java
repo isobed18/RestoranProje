@@ -40,11 +40,20 @@ public class WaiterGuiController {
     private List<MenuItem> currentOrderItems;
 
     private final OrderManager orderManager = new OrderManager();
-    private final Waiter waiter = new Waiter("Zeynep", "1234"); // or login ekranından gelsin
+    private Waiter waiter;
+
+    public void setWaiter(String username, String password) {
+        this.waiter = new Waiter(username, password, false);
+        orderManager.addObserver(waiter);
+        
+        // Initialize orders after setting waiter
+        if (orders != null) {
+            refreshOrders();
+        }
+    }
 
     @FXML
     public void initialize() {
-        orderManager.addObserver(waiter);
         currentOrderItems = new ArrayList<>();
 
         // Menu Table
@@ -61,7 +70,7 @@ public class WaiterGuiController {
         colOrderDetails.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getDetails()));
         colOrderStatus.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getStatus().toString()));
 
-        orders = FXCollections.observableArrayList(orderManager.getAllOrders());
+        orders = FXCollections.observableArrayList();
         order_table.setItems(orders);
 
         // Quantity Spinner
