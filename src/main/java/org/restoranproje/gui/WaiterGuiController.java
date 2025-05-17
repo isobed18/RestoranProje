@@ -10,6 +10,7 @@ import org.restoranproje.model.MenuItem;
 import org.restoranproje.model.Order;
 import org.restoranproje.model.OrderStatus;
 import org.restoranproje.model.Waiter;
+import org.restoranproje.model.StockItem;
 import org.restoranproje.service.OrderManager;
 
 import java.util.ArrayList;
@@ -104,7 +105,6 @@ public class WaiterGuiController {
             return;
         }
 
-        // Do not generate order ID here; let the service/database handle it
         StringBuilder details = new StringBuilder("Sipariş Detayları:\n");
         double total = 0;
         for (MenuItem item : currentOrderItems) {
@@ -113,11 +113,15 @@ public class WaiterGuiController {
         }
         details.append("\nToplam: ₺").append(total);
 
-        // Create order with dummy ID (0)
         Order newOrder = new Order(0, details.toString(), new ArrayList<>(currentOrderItems));
-        waiter.takeOrder(orderManager, newOrder);
         
-        // Clear current order
+        // Check if there's enough stock before submitting
+        if (!orderManager.getStockManager().canFulfillOrder(newOrder)) {
+            showStockWarning(newOrder);
+            return;
+        }
+
+        waiter.takeOrder(orderManager, newOrder);
         currentOrderItems.clear();
         detail_textarea.clear();
         refreshOrders();
@@ -130,6 +134,21 @@ public class WaiterGuiController {
             showAlert("Teslim etmek için sipariş seçin.");
             return;
         }
+
+        // Check if order is already delivered
+        if (selected.getStatus() == OrderStatus.DELIVERED) {
+            showWarning("Bu sipariş zaten teslim edilmiş.", 
+                       "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
+            return;
+        }
+
+        // Check if order is cancelled
+        if (selected.getStatus() == OrderStatus.CANCELLED) {
+            showWarning("İptal edilmiş sipariş teslim edilemez.", 
+                       "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
+            return;
+        }
+
         waiter.deliverOrder(orderManager, selected.getId());
         refreshOrders();
     }
@@ -141,6 +160,21 @@ public class WaiterGuiController {
             showAlert("İptal etmek için sipariş seçin.");
             return;
         }
+
+        // Check if order is already cancelled
+        if (selected.getStatus() == OrderStatus.CANCELLED) {
+            showWarning("Bu sipariş zaten iptal edilmiş.", 
+                       "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
+            return;
+        }
+
+        // Check if order is already delivered
+        if (selected.getStatus() == OrderStatus.DELIVERED) {
+            showWarning("Teslim edilmiş sipariş iptal edilemez.", 
+                       "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
+            return;
+        }
+
         waiter.cancelOrder(orderManager, selected.getId());
         refreshOrders();
     }
@@ -154,6 +188,49 @@ public class WaiterGuiController {
         alert.setTitle("Uyarı");
         alert.setHeaderText(null);
         alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    private void showWarning(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("İşlem Yapılamaz");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showStockWarning(Order order) {
+        StringBuilder warningMsg = new StringBuilder("Yetersiz stok!\n\nEksik olan malzemeler:\n");
+        List<StockItem> allStock = orderManager.getStockManager().getAllStockItems();
+        
+        // Get the required stock items for the order
+        for (MenuItem item : order.getItems()) {
+            for (StockItem neededItem : item.getItems()) {
+                // Find matching stock item
+                StockItem currentStock = null;
+                for (StockItem stockItem : allStock) {
+                    if (stockItem.getId() == neededItem.getId()) {
+                        currentStock = stockItem;
+                        break;
+                    }
+                }
+
+                if (currentStock == null || currentStock.getAmount() < neededItem.getAmount()) {
+                    warningMsg.append("- ").append(neededItem.getName())
+                             .append(": Mevcut: ").append(String.format("%.2f", 
+                                 currentStock != null ? currentStock.getAmount() : 0))
+                             .append(" ").append(neededItem.getUnit())
+                             .append(", Gerekli: ").append(String.format("%.2f", neededItem.getAmount()))
+                             .append(" ").append(neededItem.getUnit())
+                             .append("\n");
+                }
+            }
+        }
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Stok Uyarısı");
+        alert.setHeaderText("Sipariş oluşturulamadı!");
+        alert.setContentText(warningMsg.toString());
         alert.showAndWait();
     }
 }
