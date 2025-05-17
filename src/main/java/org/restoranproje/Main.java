@@ -3,21 +3,23 @@ package org.restoranproje;
 import org.restoranproje.db.DatabaseManager;
 import org.restoranproje.db.StockDAO;
 import org.restoranproje.db.MenuDAO;
-import org.restoranproje.db.OrderDAO;
 import org.restoranproje.model.*;
-import org.restoranproje.service.OrderManager;
 import org.restoranproje.service.StockManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
         DatabaseManager.setupDatabase();
 
-        OrderManager orderManager = new OrderManager();
-        StockManager stockManager = orderManager.getStockManager();
+        StockManager stockManager = new StockManager();
         StockDAO stockDAO = new StockDAO();
         MenuDAO menuDAO = new MenuDAO();
 
@@ -25,9 +27,19 @@ public class Main {
         Chef sef = new Chef("Ahmet", "abcd");
         Manager mudur = new Manager("Emir", "admin");
 
-        mudur.addStockItem(stockManager, new StockItem("Et", 1000.0, "gram", 0.25));
-        mudur.addStockItem(stockManager, new StockItem("Domates", 50.0, "adet", 2.0));
-        mudur.addStockItem(stockManager, new StockItem("Soğan", 30.0, "adet", 1.5));
+        // Add stock items and get their IDs
+        StockItem et = new StockItem("Et", 1000.0, "gram", 0.25);
+        StockItem domates = new StockItem("Domates", 50.0, "adet", 2.0);
+        StockItem sogan = new StockItem("Soğan", 30.0, "adet", 1.5);
+
+        mudur.addStockItem(stockManager, et);
+        mudur.addStockItem(stockManager, domates);
+        mudur.addStockItem(stockManager, sogan);
+
+        // Get the actual stock items with IDs from the database
+        et = stockDAO.getStockItemByName("Et");
+        domates = stockDAO.getStockItemByName("Domates");
+        sogan = stockDAO.getStockItemByName("Soğan");
 
         System.out.println("\n✅ RAM'deki Stok Durumu:");
         stockManager.printAllStock();
@@ -37,97 +49,60 @@ public class Main {
             System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " " + item.getUnit());
         }
 
+        // Create menu items with proper stock item references
         ArrayList<StockItem> adanaIngredients = new ArrayList<>(Arrays.asList(
-            new StockItem("Et", 200.0, "gram", 0.25),
-            new StockItem("Domates", 1.0, "adet", 2.0)
+            new StockItem(et.getId(), "Et", 200.0, "gram", 0.25),
+            new StockItem(domates.getId(), "Domates", 1.0, "adet", 2.0)
         ));
 
         ArrayList<StockItem> donerIngredients = new ArrayList<>(Arrays.asList(
-            new StockItem("Et", 150.0, "gram", 0.25),
-            new StockItem("Soğan", 1.0, "adet", 1.5)
+            new StockItem(et.getId(), "Et", 150.0, "gram", 0.25),
+            new StockItem(sogan.getId(), "Soğan", 1.0, "adet", 1.5)
         ));
 
         MenuItem adana = new MenuItem("Adana Kebap", "Acılı kebap", MenuItemType.DISH, 80.0, adanaIngredients);
         MenuItem doner = new MenuItem("Et Döner", "Klasik döner", MenuItemType.DISH, 70.0, donerIngredients);
 
-        mudur.addMenuItem(menuDAO, adana, 1, Arrays.asList(1, 2));
-        mudur.addMenuItem(menuDAO, doner, 2, Arrays.asList(1, 3));
-
-        ArrayList<MenuItem> siparis1 = new ArrayList<>(Arrays.asList(adana));
-        Order order1 = new Order(1, "Masa 5 - Adana Kebap", siparis1);
-        garson.takeOrder(orderManager, order1);
-
-        sef.completeOrder(orderManager, 1);
-        garson.deliverOrder(orderManager, 1);
-
-        ArrayList<MenuItem> siparis2 = new ArrayList<>(Arrays.asList(doner));
-        Order order2 = new Order(2, "Masa 3 - Et Döner", siparis2);
-        garson.takeOrder(orderManager, order2);
-
-        System.out.println("\n📦 cancel once RAM Stok Durumu:");
-        stockManager.printAllStock();
-
-        System.out.println("\n📦 cancel once Veritabanı Stok Durumu:");
-        for (StockItem item : stockDAO.getAllStockItems()) {
-            System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " " + item.getUnit());
+        // Get stock item IDs for menu items
+        List<Integer> adanaStockIds = new ArrayList<>();
+        for (StockItem item : adanaIngredients) {
+            adanaStockIds.add(item.getId());
         }
 
-        garson.cancelOrder(orderManager, 2);
-
-        System.out.println("\n📦 cancel sonrası RAM Stok Durumu:");
-        stockManager.printAllStock();
-
-        System.out.println("\n📦 cancel sonrası Veritabanı Stok Durumu:");
-        for (StockItem item : stockDAO.getAllStockItems()) {
-            System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " " + item.getUnit());
+        List<Integer> donerStockIds = new ArrayList<>();
+        for (StockItem item : donerIngredients) {
+            donerStockIds.add(item.getId());
         }
 
-        System.out.println("\n📜 Sipariş Geçmişi:");
-        for (Order o : orderManager.getAllOrders()) {
-            mudur.update(o);
-            System.out.println("🔍 Sipariş içeriği:");
-            for (MenuItem mi : o.getItems()) {
-                System.out.println("  - " + mi.getName() + " (₺" + mi.getPrice() + "):");
-                for (StockItem si : mi.getItems()) {
-                    System.out.println("    * " + si.getAmount() + " " + si.getUnit() + " " + si.getName());
-                }
-            }
-        }
+        mudur.addMenuItem(menuDAO, adana, adanaStockIds);
+        mudur.addMenuItem(menuDAO, doner, donerStockIds);
 
-        System.out.println("\n📂 Veritabanından Aktif Siparişler:");
-        List<Order> activeOrders = OrderDAO.getActiveOrders();
-        for (Order dbOrder : activeOrders) {
-            System.out.println(dbOrder);
-            System.out.println("🔍 Sipariş içeriği:");
-            for (MenuItem mi : dbOrder.getItems()) {
-                System.out.println("  - " + mi.getName() + " (₺" + mi.getPrice() + "):");
-                for (StockItem si : mi.getItems()) {
-                    System.out.println("    * " + si.getAmount() + " " + si.getUnit() + " " + si.getName());
-                }
-            }
-        }
-
-        System.out.println("\n📦 RAM Stok Durumu:");
-        stockManager.printAllStock();
-
-        System.out.println("\n📦 Veritabanı Stok Durumu:");
-        for (StockItem item : stockDAO.getAllStockItems()) {
-            System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " " + item.getUnit());
-        }
-
-        System.out.println("\n🧪 YÖNETİCİ TESTİ: Menü ve Stok Ürünlerini Kaldır/Güncelle");
-        mudur.removeStockItem(stockDAO, "Domates");
-        mudur.removeMenuItem(menuDAO, "Adana Kebap");
-        mudur.changeUnitCost(stockDAO, "Soğan", 3.0);
-
-        System.out.println("\n🆕 Veritabanı Stok Durumu (Silme ve Güncelleme Sonrası):");
+        // Only print menu and stock status, no order operations
+        System.out.println("\n🆕 Veritabanı Stok Durumu:");
         for (StockItem item : stockDAO.getAllStockItems()) {
             System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " / unit: " + item.getUnit() + " / unitCost: " + item.getUnitCost());
         }
 
-        System.out.println("\n🆕 Veritabanı Menü Durumu (Silme Sonrası):");
+        System.out.println("\n🆕 Veritabanı Menü Durumu:");
         for (MenuItem item : menuDAO.getAllMenuItems()) {
             System.out.println("[DB MENU] " + item.getName() + " - ₺" + item.getPrice());
         }
+    }
+
+    public static int insertNewOrder(String details, OrderStatus status) {
+        String sql = "INSERT INTO order_history (details, status) VALUES (?, ?)";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, details);
+            pstmt.setString(2, status.toString());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1); // This is the generated order_id
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

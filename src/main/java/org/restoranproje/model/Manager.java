@@ -39,12 +39,12 @@ public class Manager extends User {
         stockManager.addStockItem(item);
     }
 
-    public void addMenuItem(MenuDAO menuDAO, MenuItem menuItem, int menuItemId, List<Integer> stockItemIds) {
-        menuDAO.insertMenuItem(menuItem, menuItemId, stockItemIds);
+    public void addMenuItem(MenuDAO menuDAO, MenuItem menuItem, List<Integer> stockItemIds) {
+        menuDAO.insertMenuItem(menuItem, stockItemIds);
     }
 
     public void removeStockItem(StockDAO stockDAO, String stockItemName) {
-        stockDAO.removeStockItemByName(stockItemName);
+        stockDAO.removeStockItem(stockItemName);
     }
 
     public void removeMenuItem(MenuDAO menuDAO, String menuItemName) {
@@ -52,6 +52,6 @@ public class Manager extends User {
     }
 
     public void changeUnitCost(StockDAO stockDAO, String stockItemName, double newUnitCost) {
-        stockDAO.updateUnitCost(stockItemName, newUnitCost);
+        stockDAO.changeUnitCost(stockItemName, newUnitCost);
     }
 } 

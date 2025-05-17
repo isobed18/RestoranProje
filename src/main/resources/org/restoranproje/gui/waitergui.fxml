@@ -23,6 +23,11 @@
                     <TableColumn fx:id="colMenuPrice" text="Fiyat" prefWidth="60"/>
                 </columns>
             </TableView>
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Adet:"/>
+                <Spinner fx:id="quantity_spinner" prefWidth="80"/>
+                <Button fx:id="add_button" text="Sepete Ekle" onMouseClicked="#handleAddClick"/>
+            </HBox>
         </VBox>
     </left>
 
@@ -43,14 +48,16 @@
     </center>
 
     <bottom>
-        <HBox spacing="10.0">
+        <VBox spacing="10.0">
             <padding>
                 <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
             </padding>
-            <TextArea fx:id="detail_textarea" promptText="Sipariş detayları yazın..." prefColumnCount="30"/>
-            <Button fx:id="add_button" text="Sipariş Ekle" onMouseClicked="#handleAddClick"/>
-            <Button fx:id="deliver_button" text="Teslim Et" onMouseClicked="#handleDeliverClick"/>
-            <Button fx:id="cancel_button" text="İptal Et" onMouseClicked="#handleCancelClick"/>
-        </HBox>
+            <TextArea fx:id="detail_textarea" promptText="Sipariş detayları..." prefColumnCount="30" prefRowCount="5"/>
+            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                <Button fx:id="submit_button" text="Siparişi Tamamla" onMouseClicked="#handleSubmitOrder"/>
+                <Button fx:id="deliver_button" text="Teslim Et" onMouseClicked="#handleDeliverClick"/>
+                <Button fx:id="cancel_button" text="İptal Et" onMouseClicked="#handleCancelClick"/>
+            </HBox>
+        </VBox>
     </bottom>
 </BorderPane>

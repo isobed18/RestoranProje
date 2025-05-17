@@ -28,7 +28,22 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
-
+    public static int insertNewOrder(String details, OrderStatus status) {
+        String sql = "INSERT INTO order_history (details, status) VALUES (?, ?)";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, details);
+            pstmt.setString(2, status.toString());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1); // This is the generated order_id
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
     public static List<Order> getActiveOrders() {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT * FROM order_history WHERE status != 'DELIVERED' AND status != 'CANCELLED' ORDER BY order_id";

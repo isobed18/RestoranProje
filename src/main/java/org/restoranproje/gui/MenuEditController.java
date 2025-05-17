@@ -71,11 +71,10 @@ public class MenuEditController {
 
             // Şu anda boş bir malzeme listesi ile ekliyoruz
             ArrayList<StockItem> emptyIngredients = new ArrayList<>();
-
             MenuItem item = new MenuItem(name, description, type, price, emptyIngredients);
 
-            // Otomatik ID yerine dummy ID ve boş stockItemId listesi gönderiyoruz
-            menuDAO.insertMenuItem(item, -1, new ArrayList<>());
+            // Boş bir stockItemId listesi gönderiyoruz
+            menuDAO.insertMenuItem(item, new ArrayList<>());
 
             loadMenuItems();
 

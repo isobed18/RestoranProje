@@ -1,6 +1,7 @@
 package org.restoranproje.model;
 
 public class StockItem {
+    private int id;
     private String name;
     private double amount;
     private String unit;
@@ -11,6 +12,22 @@ public class StockItem {
         this.amount = amount;
         this.unit = unit;
         this.unitCost = unitCost;
+    }
+
+    public StockItem(int id, String name, double amount, String unit, double unitCost) {
+        this.id = id;
+        this.name = name;
+        this.amount = amount;
+        this.unit = unit;
+        this.unitCost = unitCost;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -43,5 +60,10 @@ public class StockItem {
 
     public void setUnitCost(double unitCost) {
         this.unitCost = unitCost;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", " + name + " (" + amount + " " + unit + ")";
     }
 } 

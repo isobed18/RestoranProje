@@ -92,7 +92,7 @@ public class StockEditController {
     void handleDeleteClick(MouseEvent event) {
         String name = delete_name.getText().trim();
         if (!name.isEmpty()) {
-            stockDAO.deleteStockItem(name);
+            stockDAO.removeStockItem(name);
             loadStockItems();
             delete_name.clear();
         } else {
@@ -106,7 +106,7 @@ public class StockEditController {
         try {
             double newCost = Double.parseDouble(update_cost.getText().trim());
             if (!name.isEmpty()) {
-                stockDAO.updateUnitCost(name, newCost);
+                stockDAO.changeUnitCost(name, newCost);
                 loadStockItems();
                 update_name.clear(); update_cost.clear();
             } else {

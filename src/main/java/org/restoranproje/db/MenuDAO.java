@@ -19,7 +19,7 @@ public class MenuDAO {
     public List<MenuItem> getAllMenuItems() {
         List<MenuItem> menuItems = new ArrayList<>();
         String menuQuery = "SELECT id, name, description, type, price FROM menu_items";
-        String stockQuery = "SELECT si.name, mis.amount, si.unit, si.unit_cost FROM menu_item_stock mis " +
+        String stockQuery = "SELECT si.id, si.name, mis.amount, si.unit, si.unit_cost FROM menu_item_stock mis " +
                 "JOIN stock_items si ON mis.stock_item_id = si.id WHERE mis.menu_item_id = ?";
 
         try (Statement menuStmt = connection.createStatement();
@@ -38,15 +38,20 @@ public class MenuDAO {
                 ResultSet stockRs = stockStmt.executeQuery();
 
                 while (stockRs.next()) {
+                    int stockId = stockRs.getInt("id");
                     String stockName = stockRs.getString("name");
                     double amount = stockRs.getDouble("amount");
                     String unit = stockRs.getString("unit");
                     double unitCost = stockRs.getDouble("unit_cost");
-                    stockItems.add(new StockItem(stockName, amount, unit, unitCost));
+                    StockItem stockItem = new StockItem(stockName, amount, unit, unitCost);
+                    stockItem.setId(stockId);
+                    stockItems.add(stockItem);
                 }
 
                 stockRs.close();
-                menuItems.add(new MenuItem(name, desc, type, price, stockItems));
+                MenuItem menuItem = new MenuItem(name, desc, type, price, stockItems);
+                menuItem.setId(menuId);
+                menuItems.add(menuItem);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -55,7 +60,7 @@ public class MenuDAO {
         return menuItems;
     }
 
-    public void insertMenuItem(MenuItem menuItem, int menuItemId, List<Integer> stockItemIds) {
+    public void insertMenuItem(MenuItem menuItem, List<Integer> stockItemIds) {
         String menuQuery = "INSERT INTO menu_items (name, description, type, price) VALUES (?, ?, ?, ?)";
         String linkQuery = "INSERT INTO menu_item_stock (menu_item_id, stock_item_id, amount) VALUES (?, ?, ?)";
 
@@ -69,18 +74,21 @@ public class MenuDAO {
             menuStmt.executeUpdate();
 
             ResultSet generatedKeys = menuStmt.getGeneratedKeys();
-            int generatedMenuItemId = menuItemId;
+            int generatedMenuItemId = -1;
             if (generatedKeys.next()) {
                 generatedMenuItemId = generatedKeys.getInt(1);
+                menuItem.setId(generatedMenuItemId);
             }
 
-            for (int i = 0; i < stockItemIds.size(); i++) {
-                int stockItemId = stockItemIds.get(i);
-                StockItem ingredient = menuItem.getItems().get(i);
-                linkStmt.setInt(1, generatedMenuItemId);
-                linkStmt.setInt(2, stockItemId);
-                linkStmt.setDouble(3, ingredient.getAmount());
-                linkStmt.executeUpdate();
+            if (generatedMenuItemId != -1) {
+                for (int i = 0; i < stockItemIds.size(); i++) {
+                    int stockItemId = stockItemIds.get(i);
+                    StockItem ingredient = menuItem.getItems().get(i);
+                    linkStmt.setInt(1, generatedMenuItemId);
+                    linkStmt.setInt(2, stockItemId);
+                    linkStmt.setDouble(3, ingredient.getAmount());
+                    linkStmt.executeUpdate();
+                }
             }
 
         } catch (SQLException e) {
@@ -104,5 +112,23 @@ public class MenuDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Integer> getStockItemIdsForMenuItem(int menuItemId) {
+        List<Integer> stockItemIds = new ArrayList<>();
+        String query = "SELECT stock_item_id FROM menu_item_stock WHERE menu_item_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, menuItemId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                stockItemIds.add(rs.getInt("stock_item_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return stockItemIds;
     }
 } 
