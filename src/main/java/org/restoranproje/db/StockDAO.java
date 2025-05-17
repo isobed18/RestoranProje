@@ -137,4 +137,17 @@ public class StockDAO {
 
         return null;
     }
+
+    public void updateStockAmount(String stockItemName, double newAmount) {
+        String updateQuery = "UPDATE stock_items SET amount = ? WHERE name = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(updateQuery)) {
+            stmt.setDouble(1, newAmount);
+            stmt.setString(2, stockItemName);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Stok miktarı güncellenirken hata oluştu: " + e.getMessage());
+        }
+    }
 } 
