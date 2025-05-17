@@ -131,4 +131,17 @@ public class MenuDAO {
 
         return stockItemIds;
     }
+
+    public void updateMenuItemPrice(String menuItemName, double newPrice) {
+        String updateQuery = "UPDATE menu_items SET price = ? WHERE name = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(updateQuery)) {
+            stmt.setDouble(1, newPrice);
+            stmt.setString(2, menuItemName);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fiyat güncellenirken hata oluştu: " + e.getMessage());
+        }
+    }
 } 

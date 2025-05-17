@@ -24,7 +24,10 @@ public class MenuEditController {
     @FXML private TextField add_name, add_description, add_price;
     @FXML private ComboBox<MenuItemType> add_type;
     @FXML private TextField delete_name;
+    @FXML private TextField edit_name;
+    @FXML private TextField edit_price;
 
+    private MenuItem selectedItem;
     private final MenuDAO menuDAO = new MenuDAO();
     private final ObservableList<MenuItem> menuItems = FXCollections.observableArrayList();
 
@@ -42,11 +45,14 @@ public class MenuEditController {
         // Tabloya veri yükle
         loadMenuItems();
 
-        // Satıra tıklanınca delete_name'e yaz
+        // Satıra tıklanınca delete_name'e ve edit_name'e yaz
         menu_table.setOnMouseClicked(event -> {
             MenuItem selected = menu_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
+                selectedItem = selected;
                 delete_name.setText(selected.getName());
+                edit_name.setText(selected.getName());
+                edit_price.setText(String.format("%.2f", selected.getPrice()));
             }
         });
     }
@@ -54,6 +60,47 @@ public class MenuEditController {
     private void loadMenuItems() {
         menuItems.setAll(menuDAO.getAllMenuItems());
         menu_table.setItems(menuItems);
+    }
+
+    @FXML
+    void handleUpdatePriceClick(MouseEvent event) {
+        if (selectedItem == null) {
+            showAlert("Lütfen fiyatı güncellenecek ürünü tablodan seçin.");
+            return;
+        }
+
+        try {
+            String priceStr = edit_price.getText().trim();
+            if (priceStr.isEmpty()) {
+                showAlert("Lütfen yeni fiyat girin.");
+                return;
+            }
+
+            double newPrice = Double.parseDouble(priceStr);
+            if (newPrice < 0) {
+                showAlert("Fiyat negatif olamaz.");
+                return;
+            }
+
+            // Update the price in the database
+            menuDAO.updateMenuItemPrice(selectedItem.getName(), newPrice);
+            
+            // Refresh the table
+            loadMenuItems();
+            
+            // Show success message
+            showSuccess("Fiyat başarıyla güncellendi!");
+            
+            // Clear the selection
+            selectedItem = null;
+            edit_name.clear();
+            edit_price.clear();
+
+        } catch (NumberFormatException e) {
+            showAlert("Geçerli bir fiyat girin. Nokta kullanın, virgül değil.");
+        } catch (Exception e) {
+            showAlert("Hata: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -97,6 +144,12 @@ public class MenuEditController {
             menuDAO.removeMenuItemByName(name);
             loadMenuItems();
             delete_name.clear();
+            // Also clear price editing fields if the deleted item was selected
+            if (selectedItem != null && selectedItem.getName().equals(name)) {
+                selectedItem = null;
+                edit_name.clear();
+                edit_price.clear();
+            }
         } else {
             showAlert("Lütfen silinecek ürün adını girin.");
         }
@@ -105,6 +158,14 @@ public class MenuEditController {
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Uyarı");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    private void showSuccess(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Başarılı");
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
