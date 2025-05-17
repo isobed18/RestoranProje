@@ -56,22 +56,22 @@ public class OrderManager {
     public void addOrder(Order order) {
         if (order.getStatus() != OrderStatus.CANCELLED && smanager.canFulfillOrder(order)) {
             // Insert order into DB and get generated ID
-            int generatedId = org.restoranproje.Main.insertNewOrder(order.getDetails(), order.getStatus());
+            int generatedId = OrderDAO.insertNewOrder(order.getDetails(), order.getStatus());
             if (generatedId > 0) {
                 order.setId(generatedId);
+                smanager.fulfillOrder(order);
+                orders.add(order);
+                OrderDAO.logOrderHistory(order);
+                notifyObservers(order);
             }
-            smanager.fulfillOrder(order);
-            orders.add(order);
-            OrderDAO.logOrderHistory(order);
-            notifyObservers(order);
         } else if (order.getStatus() == OrderStatus.CANCELLED) {
-            int generatedId = org.restoranproje.Main.insertNewOrder(order.getDetails(), order.getStatus());
+            int generatedId = OrderDAO.insertNewOrder(order.getDetails(), order.getStatus());
             if (generatedId > 0) {
                 order.setId(generatedId);
+                orders.add(order);
+                OrderDAO.logOrderHistory(order);
+                notifyObservers(order);
             }
-            orders.add(order);
-            OrderDAO.logOrderHistory(order);
-            notifyObservers(order);
         } else {
             System.out.println("Stok yetersiz! Sipariş alınamadı.");
         }

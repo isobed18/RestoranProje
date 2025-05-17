@@ -72,7 +72,7 @@ public class Main {
         List<Integer> donerStockIds = new ArrayList<>();
         for (StockItem item : donerIngredients) {
             donerStockIds.add(item.getId());
-        }
+                }
 
         mudur.addMenuItem(menuDAO, adana, adanaStockIds);
         mudur.addMenuItem(menuDAO, doner, donerStockIds);

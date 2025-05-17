@@ -30,6 +30,7 @@ public class OrderDAO {
     }
     public static int insertNewOrder(String details, OrderStatus status) {
         String sql = "INSERT INTO order_history (details, status) VALUES (?, ?)";
+        int generatedId = -1;
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, details);
@@ -37,12 +38,19 @@ public class OrderDAO {
             pstmt.executeUpdate();
             ResultSet rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); // This is the generated order_id
+                generatedId = rs.getInt(1);
+                // Update the order_id to match the generated id
+                String updateSql = "UPDATE order_history SET order_id = ? WHERE id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    updateStmt.setInt(1, generatedId);
+                    updateStmt.setInt(2, generatedId);
+                    updateStmt.executeUpdate();
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1;
+        return generatedId;
     }
     public static List<Order> getActiveOrders() {
         List<Order> orders = new ArrayList<>();
