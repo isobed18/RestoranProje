@@ -108,8 +108,8 @@ public class StockManager {
     }
 
     public void restoreStockForOrder(Order order) {
-        // Only restore stock if the order was previously fulfilled
-        if (order.getStatus() != OrderStatus.CANCELLED) {
+        // Restore stock when order is cancelled
+        if (order.getStatus() == OrderStatus.CANCELLED) {
             for (MenuItem item : order.getItems()) {
                 for (StockItem used : item.getItems()) {
                     StockItem stock = findStockItemById(used.getId());
