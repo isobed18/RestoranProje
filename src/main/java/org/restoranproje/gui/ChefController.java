@@ -45,7 +45,7 @@ public class ChefController implements Initializable {
 
         // Initialize table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id")); // Using same ID since there's only one in the model
+        orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("order")); // Using same ID since there's only one in the model
         detailsColumn.setCellValueFactory(new PropertyValueFactory<>("details"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
