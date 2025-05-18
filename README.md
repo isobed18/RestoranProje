@@ -96,6 +96,9 @@ src/main/resources/database/restoran.db
 5. Pull Request oluşturun
 
 
+## 📝 Lisans
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
 
 
 ### Proje Geliştiricileri
@@ -113,3 +116,5 @@ src/main/resources/database/restoran.db
 
 ### Proje Linki
 [https://github.com/isobed18/RestoranProje](https://github.com/isobed18/RestoranProje) 
+
+
