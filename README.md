@@ -97,8 +97,19 @@ src/main/resources/database/restoran.db
 
 
 
-## 📞 İletişim
-İshak Bedir Yorgancı Github: [https://github.com/isobed18](https://github.com/yusufduman78) Mail:ishakbediryorganci@gmail.com 
-Ahmet Emir Coşkun Github: [https://github.com/ahmetemircoskun](https://github.com/yusufduman78) Mail: aecoskuno@gmail.com
-Yusuf Duman Github: [https://github.com/yusufduman78](https://github.com/yusufduman78) Mail: yusuf78duman@gmail.com
-Proje Linki: [https://github.com/isobed18/RestoranProje](https://github.com/isobed18/RestoranProje)
+
+### Proje Geliştiricileri
+- **İshak Bedir Yorgancı**  
+  Github: [https://github.com/isobed18](https://github.com/isobed18)  
+  Mail: ishakbediryorganci@gmail.com
+
+- **Ahmet Emir Coşkun**  
+  Github: [https://github.com/ahmetemircoskun](https://github.com/ahmetemircoskun)  
+  Mail: aecoskuno@gmail.com
+
+- **Yusuf Duman**  
+  Github: [https://github.com/yusufduman78](https://github.com/yusufduman78)  
+  Mail: yusuf78duman@gmail.com
+
+### Proje Linki
+[https://github.com/isobed18/RestoranProje](https://github.com/isobed18/RestoranProje) 
