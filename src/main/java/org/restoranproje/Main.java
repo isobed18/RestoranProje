@@ -1,78 +1,108 @@
 package org.restoranproje;
 
-import org.restoranproje.service.*;
+import org.restoranproje.db.DatabaseManager;
+import org.restoranproje.db.StockDAO;
+import org.restoranproje.db.MenuDAO;
 import org.restoranproje.model.*;
-import org.restoranproje.db.*;
+import org.restoranproje.service.StockManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
+        DatabaseManager.setupDatabase();
 
-        DatabaseManager.setupDatabase(); // Kurarken bir kez çalıştırın
+        StockManager stockManager = new StockManager();
+        StockDAO stockDAO = new StockDAO();
+        MenuDAO menuDAO = new MenuDAO();
 
-        // Yöneticiler ve servisler
-        OrderManager orderManager = new OrderManager();
-        StockManager stockManager = orderManager.getStockManager();
+        Waiter garson = new Waiter("Zeynep", "1234");
+        Chef sef = new Chef("Ahmet", "abcd");
+        Manager mudur = new Manager("Emir", "admin");
 
-        Waiter waiter = new Waiter("İshak", "123");
-        Chef chef = new Chef("Coşkun", "1234");
-        Manager admin = new Manager("Yusuf", "1234");
+        // Add stock items and get their IDs
+        StockItem et = new StockItem("Et", 1000.0, "gram", 0.25);
+        StockItem domates = new StockItem("Domates", 50.0, "adet", 2.0);
+        StockItem sogan = new StockItem("Soğan", 30.0, "adet", 1.5);
 
-        // Observer ekleniyor
-        orderManager.addObserver(waiter);
-        orderManager.addObserver(chef);
-        orderManager.addObserver(admin);
+        mudur.addStockItem(stockManager, et);
+        mudur.addStockItem(stockManager, domates);
+        mudur.addStockItem(stockManager, sogan);
 
-        // Başlangıç stoğu
-        StockItem etStok = new StockItem("et", "dana eti kg, kg başı fiyat", 100, 650);
-        StockItem otStok = new StockItem("ot","ot stok", 100, 10);
-        stockManager.addStockItem(etStok);  // StokManager'a ürün ekleniyor
-        stockManager.addStockItem(otStok);
-        System.out.println("Stoklar:");
+        // Get the actual stock items with IDs from the database
+        et = stockDAO.getStockItemByName("Et");
+        domates = stockDAO.getStockItemByName("Domates");
+        sogan = stockDAO.getStockItemByName("Soğan");
+
+        System.out.println("\n✅ RAM'deki Stok Durumu:");
         stockManager.printAllStock();
 
-        // Siparişe ait stok gereksinimi
+        System.out.println("\n✅ Veritabanındaki Stok Durumu:");
+        for (StockItem item : stockDAO.getAllStockItems()) {
+            System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " " + item.getUnit());
+        }
 
-        StockItem etDonerdekiet = new StockItem("et","etdonerdeki et", 1, 650);
-        StockItem etDonerdekiot = new StockItem("ot","etdonerdeki", 10, 10);
-        ArrayList<StockItem> etdoner_items = new ArrayList<>();
-        etdoner_items.add(etDonerdekiet);
-        etdoner_items.add(etDonerdekiot);
-        MenuItem etdoner = new MenuItem("etdoner","et doner",MenuItemType.DISH,
-                1000,etdoner_items);
+        // Create menu items with proper stock item references
+        ArrayList<StockItem> adanaIngredients = new ArrayList<>(Arrays.asList(
+            new StockItem(et.getId(), "Et", 200.0, "gram", 0.25),
+            new StockItem(domates.getId(), "Domates", 1.0, "adet", 2.0)
+        ));
 
-        ArrayList<MenuItem> orderItems = new ArrayList<>();
-        orderItems.add(etdoner);
-        Order order1 = new Order(1,"ornek detay", orderItems);
-        orderManager.addOrder(order1);
-        System.out.println("stoklar:");
-        stockManager.printAllStock();
+        ArrayList<StockItem> donerIngredients = new ArrayList<>(Arrays.asList(
+            new StockItem(et.getId(), "Et", 150.0, "gram", 0.25),
+            new StockItem(sogan.getId(), "Soğan", 1.0, "adet", 1.5)
+        ));
 
-        System.out.println("tüm siparişler:");
-        admin.viewAllOrders(orderManager);
+        MenuItem adana = new MenuItem("Adana Kebap", "Acılı kebap", MenuItemType.DISH, 80.0, adanaIngredients);
+        MenuItem doner = new MenuItem("Et Döner", "Klasik döner", MenuItemType.DISH, 70.0, donerIngredients);
 
-        otStok.setCount(90);
-        stockManager.removeStockItem(otStok);
-        // İkinci sipariş testi
-        stockManager.printAllStock();
-        order1.setId(2);
-        waiter.takeOrder(orderManager, order1); // stok yetersiz olmalı şuan
-        StockItem otStok2 = new StockItem("ot","ot stok", 100, 10);
-        stockManager.printAllStock();
+        // Get stock item IDs for menu items
+        List<Integer> adanaStockIds = new ArrayList<>();
+        for (StockItem item : adanaIngredients) {
+            adanaStockIds.add(item.getId());
+        }
 
-        stockManager.addStockItem(otStok2);
-        stockManager.printAllStock();
-        waiter.takeOrder(orderManager, order1); //şimdi alınmalı
-        stockManager.printAllStock();
+        List<Integer> donerStockIds = new ArrayList<>();
+        for (StockItem item : donerIngredients) {
+            donerStockIds.add(item.getId());
+                }
 
+        mudur.addMenuItem(menuDAO, adana, adanaStockIds);
+        mudur.addMenuItem(menuDAO, doner, donerStockIds);
 
-        // stok restore
-        System.out.println("Sipariş iptal testi :");
+        // Only print menu and stock status, no order operations
+        System.out.println("\n🆕 Veritabanı Stok Durumu:");
+        for (StockItem item : stockDAO.getAllStockItems()) {
+            System.out.println("[DB] " + item.getName() + " / amount: " + item.getAmount() + " / unit: " + item.getUnit() + " / unitCost: " + item.getUnitCost());
+        }
 
-        orderManager.updateOrderStatus(2, OrderStatus.CANCELLEDBP);
-        stockManager.printAllStock();
+        System.out.println("\n🆕 Veritabanı Menü Durumu:");
+        for (MenuItem item : menuDAO.getAllMenuItems()) {
+            System.out.println("[DB MENU] " + item.getName() + " - ₺" + item.getPrice());
+        }
+    }
 
-
+    public static int insertNewOrder(String details, OrderStatus status) {
+        String sql = "INSERT INTO order_history (details, status) VALUES (?, ?)";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, details);
+            pstmt.setString(2, status.toString());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1); // This is the generated order_id
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

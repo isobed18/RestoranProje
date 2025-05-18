@@ -1,7 +1,4 @@
 package org.restoranproje.model;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-
 
 public abstract class User implements Observer {
     protected String name;

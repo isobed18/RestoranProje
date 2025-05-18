@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            fx:controller="org.restoranproje.gui.WaiterEditController"
+            prefWidth="653" prefHeight="534">
+
+    <children>
+
+        <!-- Tablo -->
+        <TableView fx:id="waiter_table" layoutX="30.0" layoutY="30.0" prefWidth="600.0" prefHeight="200.0">
+            <columns>
+                <TableColumn fx:id="colName" text="Name" prefWidth="200.0"/>
+                <TableColumn fx:id="colPassword" text="Password" prefWidth="200.0"/>
+                <TableColumn fx:id="colRole" text="Role" prefWidth="200.0"/>
+            </columns>
+        </TableView>
+
+        <!-- Ekleme Alanı -->
+        <Label text="Add Waiter" layoutX="30.0" layoutY="250.0"/>
+        <TextField fx:id="add_name" layoutX="30.0" layoutY="270.0" promptText="Name"/>
+        <TextField fx:id="add_password" layoutX="200.0" layoutY="270.0" promptText="Password"/>
+        <Button text="Add" layoutX="400.0" layoutY="270.0" onMouseClicked="#handleAddClick"/>
+
+        <!-- Silme Alanı -->
+        <Label text="Delete Waiter" layoutX="30.0" layoutY="330.0"/>
+        <TextField fx:id="delete_name" layoutX="30.0" layoutY="350.0" promptText="Name"/>
+        <Button text="Delete" layoutX="200.0" layoutY="350.0" onMouseClicked="#handleDeleteClick"/>
+
+    </children>
+</AnchorPane>

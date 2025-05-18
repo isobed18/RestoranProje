@@ -13,53 +13,64 @@ public class DatabaseManager {
         return DriverManager.getConnection(DB_URL);
     }
 
+    public static Connection getConnection() {
+        try {
+            return connect();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void setupDatabase() {
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
 
-            // order_history tablosunu oluştur (zaten varsa hata vermez)
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS order_history (" +
-                    "order_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "order_id INTEGER," +
                     "details TEXT," +
                     "status TEXT)");
 
-            // completed_orders tablosunu oluştur (zaten varsa hata vermez)
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS completed_orders (" +
                     "id INTEGER PRIMARY KEY," +
                     "details TEXT," +
                     "status TEXT)");
 
-            // menu_items tablosunu oluştur (örnek sütunlarla)
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS menu_items (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT," +
                     "description TEXT," +
                     "type TEXT," +
-                    "price INTEGER)");
+                    "price REAL)");
 
-            // stock_items tablosunu oluştur (örnek sütunlarla)
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS stock_items (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT," +
-                    "description TEXT," +
-                    "count INTEGER," +
-                    "price INTEGER)");
+                    "amount REAL," +
+                    "unit TEXT," +
+                    "unit_cost REAL)");
 
-            // menu_item_stock tablosunu oluştur (ilişki tablosu)
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS menu_item_stock (" +
                     "menu_item_id INTEGER," +
                     "stock_item_id INTEGER," +
+                    "amount REAL," +  // EKLENDİ: Tarif için gerekli miktar
                     "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)," +
                     "FOREIGN KEY (stock_item_id) REFERENCES stock_items(id)," +
                     "PRIMARY KEY (menu_item_id, stock_item_id))");
 
-            // order_items tablosunu oluştur
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS order_items (" +
                     "order_id INTEGER," +
                     "menu_item_id INTEGER," +
                     "FOREIGN KEY (order_id) REFERENCES order_history(order_id)," +
                     "FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)," +
-                    "PRIMARY KEY (order_id, menu_item_id))"); // Bileşik anahtar
+                    "PRIMARY KEY (order_id, menu_item_id))");
+
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS users (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "name TEXT NOT NULL," +
+                    "password TEXT NOT NULL," +
+                    "role TEXT NOT NULL)");
 
             System.out.println("Veritabanı kurulumu tamamlandı.");
 

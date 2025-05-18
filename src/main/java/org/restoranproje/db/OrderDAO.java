@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 public class OrderDAO {
-    // Tüm sipariş hareketlerini kaydeder
     public static void logOrderHistory(Order order) {
         String sql = "INSERT INTO order_history (order_id, details, status) VALUES (?, ?, ?)";
 
@@ -29,19 +28,37 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
-
+    public static int insertNewOrder(String details, OrderStatus status) {
+        String sql = "INSERT INTO order_history (details, status) VALUES (?, ?)";
+        int generatedId = -1;
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, details);
+            pstmt.setString(2, status.toString());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
+                // Update the order_id to match the generated id
+                String updateSql = "UPDATE order_history SET order_id = ? WHERE id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    updateStmt.setInt(1, generatedId);
+                    updateStmt.setInt(2, generatedId);
+                    updateStmt.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return generatedId;
+    }
     public static List<Order> getActiveOrders() {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT * FROM order_history WHERE status != 'DELIVERED' AND status != 'CANCELLEDBP' ORDER BY order_id";
+        String sql = "SELECT * FROM order_history WHERE status != 'DELIVERED' AND status != 'CANCELLED' ORDER BY order_id";
 
-        // Sipariş kalemlerini almak için kullanılacak SQL sorgusu
         String itemsSql = "SELECT oi.menu_item_id FROM order_items oi WHERE oi.order_id = ?";
-
-        // Menü kalemesi detaylarını almak için SQL sorgusu
         String menuItemSql = "SELECT name, description, type, price FROM menu_items WHERE id = ?";
-
-        // Menü kalemesine ait stok kalemlerini almak için SQL sorgusu
-        String stockItemsSql = "SELECT mis.stock_item_id, si.name AS stock_name, si.description AS stock_desc, si.count, si.price AS stock_price " +
+        String stockItemsSql = "SELECT mis.stock_item_id, si.name AS stock_name, si.amount, si.unit, si.unit_cost " +
                 "FROM menu_item_stock mis JOIN stock_items si ON mis.stock_item_id = si.id WHERE mis.menu_item_id = ?";
 
         Map<Integer, Order> orderMap = new HashMap<>();
@@ -68,32 +85,29 @@ public class OrderDAO {
                     order.setStatus(status);
                 }
 
-                // Sipariş kalemlerini getir
                 itemsStmt.setInt(1, orderId);
                 ResultSet itemsRs = itemsStmt.executeQuery();
                 while (itemsRs.next()) {
                     int menuItemId = itemsRs.getInt("menu_item_id");
 
-                    // Menü kalemi detaylarını getir
                     menuItemStmt.setInt(1, menuItemId);
                     ResultSet menuItemRs = menuItemStmt.executeQuery();
                     if (menuItemRs.next()) {
                         String menuName = menuItemRs.getString("name");
                         String menuDescription = menuItemRs.getString("description");
                         String menuTypeStr = menuItemRs.getString("type");
-                        int menuPrice = menuItemRs.getInt("price");
+                        double menuPrice = menuItemRs.getDouble("price");
                         MenuItemType menuItemType = MenuItemType.valueOf(menuTypeStr);
                         ArrayList<StockItem> stockItems = new ArrayList<>();
 
-                        // Menü kalemine ait stok kalemlerini getir
                         stockItemsStmt.setInt(1, menuItemId);
                         ResultSet stockItemsRs = stockItemsStmt.executeQuery();
                         while (stockItemsRs.next()) {
                             String stockName = stockItemsRs.getString("stock_name");
-                            String stockDescription = stockItemsRs.getString("stock_desc");
-                            int stockCount = stockItemsRs.getInt("count");
-                            int stockPrice = stockItemsRs.getInt("stock_price");
-                            stockItems.add(new StockItem(stockName, stockDescription, stockCount, stockPrice));
+                            double stockAmount = stockItemsRs.getDouble("amount");
+                            String stockUnit = stockItemsRs.getString("unit");
+                            double stockUnitCost = stockItemsRs.getDouble("unit_cost");
+                            stockItems.add(new StockItem(stockName, stockAmount, stockUnit, stockUnitCost));
                         }
                         stockItemsRs.close();
 
@@ -113,7 +127,6 @@ public class OrderDAO {
         return orders;
     }
 
-    // Sadece DELIVERED siparişleri kaydeder
     public static void saveCompletedOrder(Order order) {
         String sql = "INSERT INTO completed_orders (id, details, status) VALUES (?, ?, ?)";
 
@@ -128,5 +141,29 @@ public class OrderDAO {
         } catch (SQLException e) {
             System.err.println("Completed order already saved: " + order.getId());
         }
+    }
+    public static List<Order> getFullOrderHistory() {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT order_id, details, status FROM order_history ORDER BY id"; // sıralı geçmiş
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+                String details = rs.getString("details");
+                String statusStr = rs.getString("status");
+
+                Order order = new Order(orderId, details, new ArrayList<>());
+                order.setStatus(OrderStatus.valueOf(statusStr));
+                orders.add(order);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return orders;
     }
 }

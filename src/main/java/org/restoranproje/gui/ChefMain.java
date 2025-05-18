@@ -6,13 +6,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class ManagerMain extends Application {
+public class ChefMain extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/org/restoranproje/gui/managergui.fxml"));
-        primaryStage.setTitle("Manager - Sipariş Takip");
-        primaryStage.setScene(new Scene(root));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/restoranproje/gui/chefgui.fxml"));
+        Parent root = loader.load();
+        
+        primaryStage.setTitle("Restaurant Management System - Chef Interface");
+        primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
     }
 

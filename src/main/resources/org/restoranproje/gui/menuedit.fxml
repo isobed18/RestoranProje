@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.restoranproje.gui.MenuEditController"
+            prefWidth="653.0" prefHeight="534.0">
+
+    <children>
+
+        <!-- MENU TABLE -->
+        <TableView fx:id="menu_table" layoutX="14.0" layoutY="14.0" prefHeight="250.0" prefWidth="624.0">
+            <columns>
+                <TableColumn fx:id="colName" prefWidth="150.0" text="Name"/>
+                <TableColumn fx:id="colDescription" prefWidth="200.0" text="Description"/>
+                <TableColumn fx:id="colType" prefWidth="100.0" text="Type"/>
+                <TableColumn fx:id="colPrice" prefWidth="80.0" text="Price"/>
+            </columns>
+        </TableView>
+
+        <!-- FİYAT GÜNCELLEME -->
+        <Label layoutX="14.0" layoutY="280.0" text="Fiyat Güncelleme:"/>
+        <TextField fx:id="edit_name" layoutX="14.0" layoutY="300.0" prefWidth="150.0" promptText="Seçili Ürün" editable="false"/>
+        <TextField fx:id="edit_price" layoutX="180.0" layoutY="300.0" prefWidth="100.0" promptText="Yeni Fiyat"/>
+        <Button text="Fiyatı Güncelle" layoutX="290.0" layoutY="300.0" onMouseClicked="#handleUpdatePriceClick"/>
+
+        <!-- MENU EKLEME -->
+        <Label layoutX="14.0" layoutY="340.0" text="Yeni Menü Ürünü Ekle:"/>
+        <TextField fx:id="add_name" layoutX="14.0" layoutY="360.0" promptText="Ad"/>
+        <TextField fx:id="add_description" layoutX="160.0" layoutY="360.0" prefWidth="180.0" promptText="Açıklama"/>
+        <ComboBox fx:id="add_type" layoutX="360.0" layoutY="360.0" prefWidth="100.0" promptText="Tür"/>
+        <TextField fx:id="add_price" layoutX="470.0" layoutY="360.0" promptText="Fiyat"/>
+        <Button text="Ekle" layoutX="580.0" layoutY="360.0" onMouseClicked="#handleAddClick"/>
+
+        <!-- MENÜ SİLME -->
+        <Label layoutX="14.0" layoutY="400.0" text="Silinecek Ürün Adı:"/>
+        <TextField fx:id="delete_name" layoutX="14.0" layoutY="420.0" prefWidth="200.0" promptText="Ad"/>
+        <Button text="Sil" layoutX="230.0" layoutY="420.0" onMouseClicked="#handleDeleteClick"/>
+
+    </children>
+</AnchorPane>

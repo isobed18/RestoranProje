@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.restoranproje.gui.OrderEditController"
+            prefWidth="653.0" prefHeight="534.0">
+
+    <children>
+        <!-- Sipariş Tablosu -->
+        <TableView fx:id="order_history" layoutX="14.0" layoutY="14.0" prefHeight="282.0" prefWidth="624.0">
+            <columns>
+                <TableColumn fx:id="colID" prefWidth="75.0" text="Order Id"/>
+                <TableColumn fx:id="colDetail" prefWidth="350.0" text="Details"/>
+                <TableColumn fx:id="colStatus" prefWidth="150.0" text="Status"/>
+            </columns>
+        </TableView>
+
+        <!-- Sipariş Detayları -->
+        <TextArea fx:id="detail_textarea" layoutX="14.0" layoutY="310.0" prefWidth="624.0" prefHeight="100.0" 
+                  editable="false" wrapText="true" promptText="Sipariş detayları burada görünecek..."/>
+
+        <!-- Butonlar -->
+        <HBox spacing="10" layoutX="14.0" layoutY="425.0" alignment="CENTER_LEFT">
+            <Button fx:id="deliver_button" text="Teslim Et" onMouseClicked="#deliver_click" 
+                    prefWidth="120.0" prefHeight="30.0"/>
+            <Button fx:id="complete_button" text="Tamamla" onMouseClicked="#complete_click"
+                    prefWidth="120.0" prefHeight="30.0"/>
+            <Button fx:id="cancel_button" text="İptal Et" onMouseClicked="#cancel_click"
+                    prefWidth="120.0" prefHeight="30.0"/>
+        </HBox>
+    </children>
+</AnchorPane>
