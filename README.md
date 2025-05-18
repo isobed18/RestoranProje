@@ -46,7 +46,7 @@ Modern ve kullanıcı dostu bir restoran yönetim sistemi. Bu proje, restoran i�
 
 1. Projeyi klonlayın:
 ```bash
-git clone https://github.com/isobed18/RestoranProje
+git clone https://github.com/isobed18/RestoranYonetimSistemi
 ```
 
 2. Gerekli bağımlılıkları yükleyin:
@@ -115,6 +115,6 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
   Mail: yusuf78duman@gmail.com
 
 ### Proje Linki
-[https://github.com/isobed18/RestoranProje](https://github.com/isobed18/RestoranProje) 
+[https://github.com/isobed18/RestoranYonetimSistemi](https://github.com/isobed18/RestoranYonetimSistemi) 
 
 
