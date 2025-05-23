@@ -58,10 +58,12 @@ mvn install
 ```bash
 src/main/resources/database/restoran.db
 ```
+
 4. Maini başlatıp Veritabanını doldurun:
-   ``` Main.Java çalıştırın(Database setup, temel kullanıcılar, menü öğeleri eklemek için)
-   src/main/java/Main.java
-   ```
+``` Main.Java çalıştırın(Database setup, temel kullanıcılar, menü öğeleri eklemek için)
+src/main/java/Main.java
+```
+
 5. IntelliJ IDEA'da Projeyi Çalıştırma:
 - Projeyi IntelliJ IDEA'da açın
 - Sol üstteki MainMenu kısmından Run bölümünde  "Edit Configurations"a tıklayın
