@@ -16,8 +16,8 @@ public class RestaurantApp extends Application {
         Scene scene = new Scene(root, 400, 500);
         primaryStage.setTitle("Restaurant Management System - Login");
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false); // Lock size for login screen
-        primaryStage.centerOnScreen(); // Center the window
+        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 

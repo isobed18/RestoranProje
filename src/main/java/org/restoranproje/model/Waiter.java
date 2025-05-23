@@ -8,7 +8,7 @@ public class Waiter extends User {
         super(name, UserType.WAITER, password);
         UserDAO.saveUser(this);
     }
-    public Waiter(String name, String password, boolean saveToDB) {
+    public Waiter(String name, String password, boolean saveToDB) {//db ye kaydetmeden olusturma
         super(name, UserType.WAITER, password);
         if (saveToDB) {
             UserDAO.saveUser(this);

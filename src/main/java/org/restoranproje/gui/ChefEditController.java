@@ -6,14 +6,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import org.restoranproje.db.DatabaseManager;
-import org.restoranproje.db.UserDAO;
 import org.restoranproje.model.Chef;
 import org.restoranproje.model.User;
-import org.restoranproje.model.UserType;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChefEditController {
 
@@ -29,14 +25,14 @@ public class ChefEditController {
     private final ObservableList<User> chefList = FXCollections.observableArrayList();
 
     @FXML
-    public void initialize() {
+    public void initialize() {//sef tablosu sutunlari ayarlanir
         colName.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getName()));
         colPassword.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getPassword()));
         colRole.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getUserType().toString()));
 
-        loadChefs();
+        loadChefs();//tabloyu guncelle
 
-        chef_table.setOnMouseClicked(event -> {
+        chef_table.setOnMouseClicked(event -> {//tablodan sectigimiz sef silinecek olup textfielda yazilir
             User selected = chef_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 delete_name.setText(selected.getName());
@@ -45,9 +41,9 @@ public class ChefEditController {
     }
 
     private void loadChefs() {
-        chefList.clear();
+        chefList.clear();//listeyi temizle
 
-        String query = "SELECT name, password, role FROM users WHERE role = 'CHEF'";
+        String query = "SELECT name, password, role FROM users WHERE role = 'CHEF'";//userdan gerekli veriler
         try (Connection conn = DatabaseManager.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -58,7 +54,7 @@ public class ChefEditController {
                 String role = rs.getString("role");
 
                 // Veritabanından gelen kullanıcıyı tekrar kaydetme!
-                Chef chef = new Chef(name, password, false); // ❗ Kaydetmeden oluştur
+                Chef chef = new Chef(name, password, false); //  Kaydetmeden oluşturulur saveToDB
                 chefList.add(chef);
             }
 
@@ -71,45 +67,41 @@ public class ChefEditController {
 
 
     @FXML
-    void handleAddClick(MouseEvent event) {
+    void handleAddClick(MouseEvent event) {//name ve password textfielddan alinir
         String name = add_name.getText().trim();
         String password = add_password.getText().trim();
 
-        if (name.isEmpty() || password.isEmpty()) {
+        if (name.isEmpty() || password.isEmpty()) {//textfield bos olamaz
             showAlert("Ad ve şifre boş olamaz.");
             return;
         }
 
-        // Veritabanına kaydeden constructor
+        // Veritabanına kaydeden constructor. Constructor Overloading
         Chef newChef = new Chef(name, password);
 
-        // Eskiden buradaydı:
-        // chefList.add(newChef); ❌ TABLOYA İKİNCİ KEZ EKLİYORDU
+        loadChefs(); //Tüm veritabanını okuyup tek seferlik yazıyor
 
-        // Onun yerine sadece tabloyu yenile:
-        loadChefs(); // ✅ Tüm veritabanını okuyup tek seferlik yazıyor
-
-        // Alanları temizle
+        // textfieldlari temizle
         add_name.clear();
         add_password.clear();
     }
 
     @FXML
     void handleDeleteClick(MouseEvent event) {
-        String name = delete_name.getText().trim();
+        String name = delete_name.getText().trim();//text fielddan bilgi alinir
 
         if (name.isEmpty()) {
             showAlert("Silmek için bir ad girin.");
             return;
         }
 
-        String query = "DELETE FROM users WHERE name = ? AND role = 'CHEF'";
+        String query = "DELETE FROM users WHERE name = ? AND role = 'CHEF'";//db den silinir
 
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, name);
-            int affectedRows = pstmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();//silinen satir sayisini dondurur
 
             if (affectedRows > 0) {
                 showAlert("Şef başarıyla silindi.");
@@ -128,7 +120,7 @@ public class ChefEditController {
 
 
 
-    private void showAlert(String msg) {
+    private void showAlert(String msg) {//gerekli uyarilar icin yardimci metot
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Uyarı");
         alert.setHeaderText(null);

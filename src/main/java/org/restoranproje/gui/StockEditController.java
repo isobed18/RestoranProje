@@ -28,7 +28,7 @@ public class StockEditController {
     private final ObservableList<StockItem> stockItems = FXCollections.observableArrayList();
 
     @FXML
-    public void initialize() {
+    public void initialize() {//sutunlari ayarlama
         colName.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getName()));
         colAmount.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getAmount()));
         colUnit.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getUnit()));
@@ -36,7 +36,7 @@ public class StockEditController {
 
         loadStockItems();
 
-        stock_table.setOnMouseClicked(event -> {
+        stock_table.setOnMouseClicked(event -> {//tiklanan urun yazdirilir textfieldlara
             StockItem selected = stock_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 selectedItem = selected;
@@ -44,7 +44,7 @@ public class StockEditController {
                 update_name.setText(selected.getName());
                 update_cost.setText(String.valueOf(selected.getUnitCost()));
                 
-                // Fill amount editing fields
+                // edit icin de yazdirilir
                 edit_name.setText(selected.getName());
                 edit_amount.setText(String.format("%.2f", selected.getAmount()));
                 edit_unit_label.setText(selected.getUnit());
@@ -72,16 +72,16 @@ public class StockEditController {
                 return;
             }
 
-            // Update the amount in the database
+            // db den miktar guncelleme
             stockDAO.updateStockAmount(selectedItem.getName(), newAmount);
             
-            // Refresh the table
+            // tabloyu yenile
             loadStockItems();
             
-            // Show success message
+
             showSuccess("Miktar başarıyla güncellendi!");
             
-            // Clear the selection
+            // islem tamamlaninca alanlari temizle
             selectedItem = null;
             edit_name.clear();
             edit_amount.clear();
@@ -94,7 +94,7 @@ public class StockEditController {
         }
     }
 
-    private void loadStockItems() {
+    private void loadStockItems() {//stock itemleri getirirz
         stockItems.setAll(stockDAO.getAllStockItems());
         stock_table.setItems(stockItems);
     }
@@ -144,7 +144,7 @@ public class StockEditController {
             loadStockItems();
             delete_name.clear();
             
-            // Clear amount editing fields if the deleted item was selected
+            // Silinen öğe seçildiyse miktar düzenleme alanlarını temizle
             if (selectedItem != null && selectedItem.getName().equals(name)) {
                 selectedItem = null;
                 edit_name.clear();
@@ -161,7 +161,7 @@ public class StockEditController {
         String name = update_name.getText().trim();
         try {
             double newCost = Double.parseDouble(update_cost.getText().trim());
-            if (!name.isEmpty()) {
+            if (!name.isEmpty()) {//guncelle ve alanlari temizle
                 stockDAO.changeUnitCost(name, newCost);
                 loadStockItems();
                 update_name.clear();

@@ -43,10 +43,10 @@ public class WaiterGuiController {
     private Waiter waiter;
 
     public void setWaiter(String username, String password) {
-        this.waiter = new Waiter(username, password, false);
+        this.waiter = new Waiter(username, password, false);//db ye kaydolmasin
         orderManager.addObserver(waiter);
         
-        // Initialize orders after setting waiter
+        // waiter ayarlandiktan sonra guncelleme
         if (orders != null) {
             refreshOrders();
         }
@@ -56,7 +56,7 @@ public class WaiterGuiController {
     public void initialize() {
         currentOrderItems = new ArrayList<>();
 
-        // Menu Table
+        // tablo sutunlari ayarlama
         colMenuName.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getName()));
         colMenuDescription.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getDescription()));
         colMenuType.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getType().toString()));
@@ -65,7 +65,7 @@ public class WaiterGuiController {
         menuItems = FXCollections.observableArrayList(new MenuDAO().getAllMenuItems());
         menu_table.setItems(menuItems);
 
-        // Order Table
+        // Order Tablosu
         colOrderID.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getId()));
         colOrderDetails.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getDetails()));
         colOrderStatus.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getStatus().toString()));
@@ -73,11 +73,11 @@ public class WaiterGuiController {
         orders = FXCollections.observableArrayList();
         order_table.setItems(orders);
 
-        // Quantity Spinner
+        // Miktar seçici (spinner) ayarları
         SpinnerValueFactory.IntegerSpinnerValueFactory valueFactory = 
             new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1);
         quantity_spinner.setValueFactory(valueFactory);
-
+        //Sipariş seçildiğinde detayları göster
         order_table.setOnMouseClicked(e -> {
             Order selected = order_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
@@ -99,7 +99,7 @@ public class WaiterGuiController {
             currentOrderItems.add(selected);
         }
 
-        // Show current order items in detail textarea
+        // Mevcut sipariş detaylarını güncelle
         StringBuilder details = new StringBuilder("Mevcut Sipariş:\n");
         for (MenuItem item : currentOrderItems) {
             details.append("- ").append(item.getName()).append(" (₺").append(item.getPrice()).append(")\n");
@@ -124,12 +124,12 @@ public class WaiterGuiController {
 
         Order newOrder = new Order(0, details.toString(), new ArrayList<>(currentOrderItems));
         
-        // Check if there's enough stock before submitting
+        // Stok kontrolü yap
         if (!orderManager.getStockManager().canFulfillOrder(newOrder)) {
             showStockWarning(newOrder);
             return;
         }
-
+        // Siparişi sisteme ekle
         waiter.takeOrder(orderManager, newOrder);
         currentOrderItems.clear();
         detail_textarea.clear();
@@ -144,14 +144,14 @@ public class WaiterGuiController {
             return;
         }
 
-        // Check if order is already delivered
+        // Daha önce teslim edilmişse uyarı ver
         if (selected.getStatus() == OrderStatus.DELIVERED) {
             showWarning("Bu sipariş zaten teslim edilmiş.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        // Check if order is cancelled
+        // Sipariş iptal edilmişse uyarı ver
         if (selected.getStatus() == OrderStatus.CANCELLED) {
             showWarning("İptal edilmiş sipariş teslim edilemez.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
@@ -170,14 +170,14 @@ public class WaiterGuiController {
             return;
         }
 
-        // Check if order is already cancelled
+        // Zaten iptal edilmişse uyarı ver
         if (selected.getStatus() == OrderStatus.CANCELLED) {
             showWarning("Bu sipariş zaten iptal edilmiş.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        // Check if order is already delivered
+        // Teslim edilmişse iptal edilemez
         if (selected.getStatus() == OrderStatus.DELIVERED) {
             showWarning("Teslim edilmiş sipariş iptal edilemez.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
@@ -211,11 +211,11 @@ public class WaiterGuiController {
     private void showStockWarning(Order order) {
         StringBuilder warningMsg = new StringBuilder("Yetersiz stok!\n\nEksik olan malzemeler:\n");
         List<StockItem> allStock = orderManager.getStockManager().getAllStockItems();
-        
-        // Get the required stock items for the order
+
+        // Siparişteki her ürün için gerekli stok kontrolü
         for (MenuItem item : order.getItems()) {
             for (StockItem neededItem : item.getItems()) {
-                // Find matching stock item
+                // Stoktan gerekli malzeme bulunuyor mu
                 StockItem currentStock = null;
                 for (StockItem stockItem : allStock) {
                     if (stockItem.getId() == neededItem.getId()) {
@@ -224,6 +224,7 @@ public class WaiterGuiController {
                     }
                 }
 
+                // Yetersizse uyarı listesine ekle
                 if (currentStock == null || currentStock.getAmount() < neededItem.getAmount()) {
                     warningMsg.append("- ").append(neededItem.getName())
                              .append(": Mevcut: ").append(String.format("%.2f", 

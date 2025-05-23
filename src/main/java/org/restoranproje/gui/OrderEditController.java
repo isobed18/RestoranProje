@@ -23,18 +23,18 @@ public class OrderEditController {
     private ObservableList<Order> orders;
 
     @FXML
-    public void initialize() {
+    public void initialize() {//sutunlarini ayarlama
         colID.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getId()));
         colDetail.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getDetails()));
         colStatus.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getStatus().toString()));
 
         loadOrders();
 
-        order_history.setOnMouseClicked(event -> {
+        order_history.setOnMouseClicked(event -> {//tablodan secilen siparise gore islemler
             Order selected = order_history.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 detail_textarea.setText(selected.getDetails());
-                updateButtonStates(selected);
+                updateButtonStates(selected);//butonlari guncelle
             }
         });
     }
@@ -49,14 +49,14 @@ public class OrderEditController {
     }
 
     private void updateButtonStates(Order order) {
-        if (order == null) {
+        if (order == null) {//normalde butonlar gozukur
             deliver_button.setDisable(true);
             complete_button.setDisable(true);
             cancel_button.setDisable(true);
             return;
         }
 
-        // Enable/disable buttons based on current order status
+        // siparisin durumuna gore butonlari duzenleme hatalarin da onune gecer
         switch (order.getStatus()) {
             case NEW:
                 deliver_button.setDisable(true);
@@ -89,14 +89,14 @@ public class OrderEditController {
             return;
         }
 
-        // Check if order is already cancelled
+        // iptal edilmis mi kontrolu
         if (selected.getStatus() == OrderStatus.CANCELLED) {
             showWarning("Bu sipariş zaten iptal edilmiş.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        // Check if order is already delivered
+        // teslim edilmis mi controlu
         if (selected.getStatus() == OrderStatus.DELIVERED) {
             showWarning("Teslim edilmiş sipariş iptal edilemez.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
@@ -106,7 +106,7 @@ public class OrderEditController {
         selected.setStatus(OrderStatus.CANCELLED);
         OrderDAO.logOrderHistory(selected);
         
-        // Update the order in the table
+        // guncelleme
         int index = orders.indexOf(selected);
         if (index >= 0) {
             orders.set(index, selected);
@@ -125,25 +125,25 @@ public class OrderEditController {
             return;
         }
 
-        // Check if order is already completed or delivered
+        // siparis durumu kontrolu
         if (selected.getStatus() == OrderStatus.COMPLETED || selected.getStatus() == OrderStatus.DELIVERED) {
             showWarning("Bu sipariş zaten hazırlanmış.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        // Check if order is cancelled
+        // iptal edilmis mi kontrolu
         if (selected.getStatus() == OrderStatus.CANCELLED) {
             showWarning("İptal edilmiş sipariş hazırlanamaz.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        selected.setStatus(OrderStatus.COMPLETED);
+        selected.setStatus(OrderStatus.COMPLETED);//status degistirme
         OrderDAO.logOrderHistory(selected);
         OrderDAO.saveCompletedOrder(selected);
         
-        // Update the order in the table
+        // siparisi guncelleme
         int index = orders.indexOf(selected);
         if (index >= 0) {
             orders.set(index, selected);
@@ -162,21 +162,21 @@ public class OrderEditController {
             return;
         }
 
-        // Check if order is already delivered
+        // siparis durumu kontrolu
         if (selected.getStatus() == OrderStatus.DELIVERED) {
             showWarning("Bu sipariş zaten teslim edilmiş.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        // Check if order is not completed yet
+        // hazirlanmadiysa teslim edilemez
         if (selected.getStatus() != OrderStatus.COMPLETED) {
             showWarning("Hazırlanmamış sipariş teslim edilemez.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
             return;
         }
 
-        // Check if order is cancelled
+        // siparis durumu kontrolu
         if (selected.getStatus() == OrderStatus.CANCELLED) {
             showWarning("İptal edilmiş sipariş teslim edilemez.", 
                        "Sipariş ID: " + selected.getId() + "\nMevcut Durum: " + selected.getStatus());
@@ -186,7 +186,7 @@ public class OrderEditController {
         selected.setStatus(OrderStatus.DELIVERED);
         OrderDAO.logOrderHistory(selected);
         
-        // Update the order in the table
+        // siparis durumu guncelleme
         int index = orders.indexOf(selected);
         if (index >= 0) {
             orders.set(index, selected);

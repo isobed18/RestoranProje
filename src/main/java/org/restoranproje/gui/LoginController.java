@@ -28,21 +28,21 @@ public class LoginController {
     @FXML
     public void initialize() {
         userTypeComboBox.getItems().addAll(UserType.values());
-        userTypeComboBox.setValue(UserType.WAITER); // Default value
+        userTypeComboBox.setValue(UserType.WAITER); // default type waiter
     }
 
     @FXML
     private void handleLogin() {
-        String username = usernameField.getText().trim();
+        String username = usernameField.getText().trim();//textfieldlardan bilgiler alinir
         String password = passwordField.getText().trim();
         UserType selectedType = userTypeComboBox.getValue();
 
-        if (username.isEmpty() || password.isEmpty()) {
+        if (username.isEmpty() || password.isEmpty()) {//bos kalamaz
             showError("Hata", "Lütfen tüm alanları doldurun.");
             return;
         }
 
-        // Validate against database
+        // db den kotnrol edilir kullanici
         if (UserDAO.validateUser(username, password, selectedType)) {
             try {
                 openAppropriateInterface(selectedType, username, password);
@@ -59,7 +59,7 @@ public class LoginController {
         String title;
         FXMLLoader loader = new FXMLLoader();
 
-        switch (userType) {
+        switch (userType) {//kullanici tipine gore acar
             case MANAGER:
                 fxmlPath = "/org/restoranproje/gui/managergui.fxml";
                 title = "Yönetici Arayüzü";
@@ -89,10 +89,9 @@ public class LoginController {
     }
 
     private void loadInterface(String title, Parent root) {
-        // Get the current stage
         Stage currentStage = (Stage) usernameField.getScene().getWindow();
 
-        // Create and configure new scene
+
         Scene scene = new Scene(root);
         currentStage.setScene(scene);
         currentStage.setTitle(title);

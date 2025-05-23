@@ -6,12 +6,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseManager {
+    // SQLite veritabanı yolu
 
     private static final String DB_URL = "jdbc:sqlite:./src/main/resources/database/restoran.db";
+    // Veritabanına bağlantı oluşturur
 
     public static Connection connect() throws SQLException {
         return DriverManager.getConnection(DB_URL);
     }
+    // Bağlantı almaya çalışır, hata olursa null döner
 
     public static Connection getConnection() {
         try {
@@ -21,6 +24,7 @@ public class DatabaseManager {
             return null;
         }
     }
+    // Veritabanı tablolarını oluşturur (eğer yoksa)
 
     public static void setupDatabase() {
         try (Connection conn = connect();

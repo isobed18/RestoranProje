@@ -26,14 +26,14 @@ public class WaiterEditController {
     private final ObservableList<User> waiterList = FXCollections.observableArrayList();
 
     @FXML
-    public void initialize() {
+    public void initialize() {//sutunlari ayarla
         colName.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getName()));
         colPassword.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getPassword()));
         colRole.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getUserType().toString()));
 
         loadWaiters();
 
-        waiter_table.setOnMouseClicked(event -> {
+        waiter_table.setOnMouseClicked(event -> {//tablodan secebilme
             User selected = waiter_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 delete_name.setText(selected.getName());
@@ -41,7 +41,7 @@ public class WaiterEditController {
         });
     }
 
-    private void loadWaiters() {
+    private void loadWaiters() {//sadece waiterlar getirilir
         waiterList.clear();
 
         String query = "SELECT name, password, role FROM users WHERE role = 'WAITER'";

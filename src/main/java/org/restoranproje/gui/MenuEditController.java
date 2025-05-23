@@ -45,7 +45,7 @@ public class MenuEditController {
         // Tabloya veri yükle
         loadMenuItems();
 
-        // Satıra tıklanınca delete_name'e ve edit_name'e yaz
+        // Satıra tıklanınca delete_name e ve edit_name e yaz
         menu_table.setOnMouseClicked(event -> {
             MenuItem selected = menu_table.getSelectionModel().getSelectedItem();
             if (selected != null) {
@@ -82,16 +82,15 @@ public class MenuEditController {
                 return;
             }
 
-            // Update the price in the database
+            // db den fiyati guncelle
             menuDAO.updateMenuItemPrice(selectedItem.getName(), newPrice);
             
-            // Refresh the table
+            // tabloyu yenile
             loadMenuItems();
             
-            // Show success message
+            // guncellenince
             showSuccess("Fiyat başarıyla güncellendi!");
-            
-            // Clear the selection
+
             selectedItem = null;
             edit_name.clear();
             edit_price.clear();
@@ -144,7 +143,7 @@ public class MenuEditController {
             menuDAO.removeMenuItemByName(name);
             loadMenuItems();
             delete_name.clear();
-            // Also clear price editing fields if the deleted item was selected
+            // Ayrıca silinen öğe seçildiyse fiyat düzenleme alanlarını da temizle
             if (selectedItem != null && selectedItem.getName().equals(name)) {
                 selectedItem = null;
                 edit_name.clear();

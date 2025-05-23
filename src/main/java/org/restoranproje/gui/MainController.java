@@ -37,7 +37,7 @@ public class MainController {
 
     @FXML
     private Button waiter_button;
-
+    //manager sayfasinda ilgili birimler kucuk bir pane de acilir ilk cikan sayfa bostur
     @FXML
     void handleChefButtonClick(MouseEvent event) {
         loadPage("chefedit.fxml");
@@ -63,11 +63,11 @@ public class MainController {
         loadPage("waiteredit.fxml");
     }
 
-    private void loadPage(String fxmlFile) {
+    private void loadPage(String fxmlFile) {//tiklanan butona gore ilgili edit sayfasi
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/restoranproje/gui/" + fxmlFile));
             Pane newPage = loader.load();
-
+            //tum sayfalar pane icinde acilir
             view_pane.getChildren().clear();
             view_pane.getChildren().add(newPage);
 
