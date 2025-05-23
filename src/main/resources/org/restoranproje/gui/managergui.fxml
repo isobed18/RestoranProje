@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="533.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.restoranproje.gui.MainController">
    <children>
@@ -96,6 +97,28 @@
                </children>
             </AnchorPane>
          </children></VBox>
-      <Pane fx:id="view_pane" prefHeight="534.0" prefWidth="653.0" />
+      <Pane fx:id="view_pane" prefHeight="534.0" prefWidth="653.0">
+         <children>
+            <ImageView fitHeight="200.0" fitWidth="200.0" layoutX="48.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../images/4617d95e-de92-4809-8a94-3752295d3b37-gazi_universitesi_logo_2017.png" />
+               </image>
+            </ImageView>
+            <Text fill="#ac1c1c" layoutX="284.0" layoutY="234.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Manager System">
+               <font>
+                  <Font name="Century Gothic Bold" size="36.0" />
+               </font>
+            </Text>
+            <ImageView fitHeight="79.0" fitWidth="79.0" layoutX="391.0" layoutY="267.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../images/icons8-restaurant-100.png" />
+               </image>
+            </ImageView>
+            <Text fill="#ac1c1c" layoutX="307.0" layoutY="179.0" strokeType="OUTSIDE" strokeWidth="0.0" text="My Restaurant">
+               <font>
+                  <Font name="Century Gothic Bold" size="36.0" />
+               </font>
+            </Text>
+         </children></Pane>
    </children>
 </HBox>

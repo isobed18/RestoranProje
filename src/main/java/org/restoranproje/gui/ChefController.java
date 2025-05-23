@@ -40,22 +40,22 @@ public class ChefController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize the order service
+        // order
         orderService = OrderService.getInstance();
 
-        // Initialize table columns
+        // tablonu  sütun isimlerini ayarlama
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("order")); // Using same ID since there's only one in the model
+        orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("order")); //
         detailsColumn.setCellValueFactory(new PropertyValueFactory<>("details"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        // Load orders from database or service
+        // siparişleri tabloya yükle
         loadOrders();
 
-        // Disable complete button when no row is selected
+        // sipariş secili değilken tamamla butonu gizlenir
         completeButton.disableProperty().bind(ordersTable.getSelectionModel().selectedItemProperty().isNull());
 
-        // Add listener to filter out completed and delivered orders
+        // sipariş filtreleme aşçı sadece ona gelen spiarşleri görür
         ordersTable.setItems(FXCollections.observableArrayList(
             orderService.getAllOrders().stream()
                 .filter(order -> order.getStatus() == OrderStatus.NEW)
@@ -67,17 +67,17 @@ public class ChefController implements Initializable {
     private void handleCompleteOrder() {
         Order selectedOrder = ordersTable.getSelectionModel().getSelectedItem();
         if (selectedOrder != null) {
-            // Update order status to completed
+            // status Completed
             selectedOrder.setStatus(OrderStatus.COMPLETED);
             
-            // Update in database or service
+            // order update
             orderService.updateOrder(selectedOrder);
             
-            // Refresh table
+            // tabloyu yenileriz
             loadOrders();
         }
     }
-
+    //siparişleri tabloya getirmek için
     private void loadOrders() {
         List<Order> newOrders = orderService.getAllOrders().stream()
             .filter(order -> order.getStatus() == OrderStatus.NEW)
